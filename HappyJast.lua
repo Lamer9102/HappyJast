@@ -215,7 +215,7 @@ end
 local MainScroll = CreatePage("Main")
 local MovingScroll = CreatePage("Moving")
 local ToolsScroll = CreatePage("Tools")
-local ImportantScroll = CreatePage("Most important")
+local ImportantScroll = CreatePage("Other")
 
 local function SelectTab(name)
     for k, v in pairs(Pages) do v.Visible = (k == name) end
@@ -245,13 +245,12 @@ end
 AddTabButton("Main")
 AddTabButton("Moving")
 AddTabButton("Tools")
-AddTabButton("Most important")
+AddTabButton("Other")
 SelectTab("Main")
 
--- Функция создания контейнера-группы
 local function CreateGroupFrame(page, color)
     local Group = Instance.new("Frame")
-    Group.Size = UDim2.new(1, -10, 0, 84) -- Высота под 2 элемента + отступы
+    Group.Size = UDim2.new(1, -10, 0, 84)
     Group.BackgroundColor3 = color
     Group.BorderSizePixel = 0
     Group.Parent = page
@@ -388,7 +387,6 @@ AddButton(ToolsScroll, "Fire All Firetouchinterests", function()
     for _, v in ipairs(Workspace:GetDescendants()) do if v:IsA("TouchTransmitter") then FireTouchTransmitter(v) end end
 end)
 
--- Создаем Аквамариновую подложку для Killaura в Tools
 local toolGroup = CreateGroupFrame(ToolsScroll, Color3.fromRGB(0, 120, 120))
 local b1 = AddToggle(toolGroup, "Sword Killaura", "Sword", function()
     while Settings.Sword do
@@ -413,12 +411,11 @@ end)
 b1.Size = UDim2.new(1, -6, 0, 35)
 b2.Size = UDim2.new(1, -6, 0, 35)
 
--- MOST IMPORTANT
+-- OTHER
 AddButton(ImportantScroll, "Fly V3", function() 
     loadstring(game:HttpGet("https://raw.githubusercontent.com/XNEOFF/FlyGuiV3/main/FlyGuiV3.txt"))() 
 end)
 
--- КРАСНАЯ ГРУППА (Random TP)
 local redGroup = CreateGroupFrame(ImportantScroll, Color3.fromRGB(150, 30, 30))
 local r1 = AddToggle(redGroup, "Random TP", "RandomTP", function() end)
 local r2 = AddTextBox(redGroup, "TP Delay (Текущий: 0.5)", function(text)
@@ -432,7 +429,6 @@ AddButton(ImportantScroll, "Auto Save (Refund)", function()
     loadstring(game:HttpGet("https://raw.githubusercontent.com/xxqLgnd/Utilities/main/AutoRefund.lua", true))() 
 end)
 
--- ОРАНЖЕВАЯ ГРУППА (Signal)
 local orangeGroup = CreateGroupFrame(ImportantScroll, Color3.fromRGB(160, 80, 20))
 local o1 = AddTextBox(orangeGroup, "Введите ID для Signal", function(text)
     if text and text ~= "" then Settings.SignalID = text end
@@ -454,7 +450,6 @@ AddButton(ImportantScroll, "Keyboard", function()
     loadstring(game:HttpGet("https://raw.githubusercontent.com/Xxtan31/Ata/main/deltakeyboardcrack.txt"))() 
 end)
 
--- ФИОЛЕТОВАЯ ГРУППА (Safety Platform)
 local purpleGroup = CreateGroupFrame(ImportantScroll, Color3.fromRGB(100, 30, 150))
 local p1 = AddToggle(purpleGroup, "Safety Platform", "Platform", function(state)
     TogglePlatform(state)
