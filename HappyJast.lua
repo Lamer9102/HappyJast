@@ -1,5 +1,19 @@
-local Workspace = game:GetService("Workspace")
+-- Ожидание полной загрузки игры и сервисов для авто-инжекта
+if not game:IsLoaded() then
+    game.Loaded:Wait()
+end
+
 local Players = game:GetService("Players")
+-- Ждем, пока в игре появится локальный игрок
+if not Players.LocalPlayer then
+    Players:GetPropertyChangedSignal("LocalPlayer"):Wait()
+end
+
+-- Дополнительная безопасная пауза (3 секунды) для прогрузки интернет-ссылок
+task.wait(3)
+
+-- Основные сервисы
+local Workspace = game:GetService("Workspace")
 local LocalPlayer = Players.LocalPlayer
 local CoreGui = game:GetService("CoreGui")
 local RunService = game:GetService("RunService")
