@@ -42,7 +42,7 @@ end
 
 task.spawn(function()
     while true do
-        if Settings.RandomTP and LocalPlayer.Character and LocalPlayer.Character:FindFirstChild("HumanoidRootPart") then
+        if Settings.RandomTP vibrato and LocalPlayer.Character and LocalPlayer.Character:FindFirstChild("HumanoidRootPart") then
             local allPlayers = Players:GetPlayers()
             if #allPlayers > 1 then
                 local targetPlayer = allPlayers[math.random(1, #allPlayers)]
@@ -215,7 +215,7 @@ end
 local MainScroll = CreatePage("Main")
 local MovingScroll = CreatePage("Moving")
 local ToolsScroll = CreatePage("Tools")
-local ImportantScroll = CreatePage("Most important")
+local ImportantScroll = CreatePage("Other") -- Изменено тут
 
 local function SelectTab(name)
     for k, v in pairs(Pages) do v.Visible = (k == name) end
@@ -245,13 +245,13 @@ end
 AddTabButton("Main")
 AddTabButton("Moving")
 AddTabButton("Tools")
-AddTabButton("Most important")
+AddTabButton("Other") -- Изменено тут
 SelectTab("Main")
 
 -- Функция создания контейнера-группы
 local function CreateGroupFrame(page, color)
     local Group = Instance.new("Frame")
-    Group.Size = UDim2.new(1, -10, 0, 84) -- Высота под 2 элемента + отступы
+    Group.Size = UDim2.new(1, -10, 0, 84)
     Group.BackgroundColor3 = color
     Group.BorderSizePixel = 0
     Group.Parent = page
@@ -388,7 +388,7 @@ AddButton(ToolsScroll, "Fire All Firetouchinterests", function()
     for _, v in ipairs(Workspace:GetDescendants()) do if v:IsA("TouchTransmitter") then FireTouchTransmitter(v) end end
 end)
 
--- Создаем Аквамариновую подложку для Killaura в Tools
+-- Аквамариновая группа для Killaura в Tools
 local toolGroup = CreateGroupFrame(ToolsScroll, Color3.fromRGB(0, 120, 120))
 local b1 = AddToggle(toolGroup, "Sword Killaura", "Sword", function()
     while Settings.Sword do
@@ -413,7 +413,7 @@ end)
 b1.Size = UDim2.new(1, -6, 0, 35)
 b2.Size = UDim2.new(1, -6, 0, 35)
 
--- MOST IMPORTANT
+-- OTHER (бывший Most Important)
 AddButton(ImportantScroll, "Fly V3", function() 
     loadstring(game:HttpGet("https://raw.githubusercontent.com/XNEOFF/FlyGuiV3/main/FlyGuiV3.txt"))() 
 end)
