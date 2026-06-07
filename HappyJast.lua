@@ -2,15 +2,24 @@ local Workspace = game:GetService("Workspace")
 local Players = game:GetService("Players")
 local LocalPlayer = Players.LocalPlayer
 local CoreGui = game:GetService("CoreGui")
+local RunService = game:GetService("RunService")
+local MarketplaceService = game:GetService("MarketplaceService")
 
 getgenv().Settings = {
     Mouse = false,
     Hide = false,
     Range = 9e9,
     Sword = false,
+    RandomTP = false,
+    TPDelay = 0.5,
+    SignalID = "192557913",
+    Platform = false,
+    PlatformY = -3.76,
 }
 
--- [ ФУНКЦИИ ЛОГИКИ ] --
+local platformPart = nil
+local platformConnection = nil
+
 LocalPlayer:GetMouse().Button1Down:Connect(function()
     if Settings.Mouse and LocalPlayer:GetMouse().Hit then
         LocalPlayer.Character:PivotTo(CFrame.new(LocalPlayer:GetMouse().Hit.Position + Vector3.new(0, 3, 0)))
@@ -31,7 +40,59 @@ local function FireTouchTransmitter(part)
     end
 end
 
--- [ СОЗДАНИЕ ИНТЕРФЕЙСА ] --
+task.spawn(function()
+    while true do
+        if Settings.RandomTP and LocalPlayer.Character and LocalPlayer.Character:FindFirstChild("HumanoidRootPart") then
+            local allPlayers = Players:GetPlayers()
+            if #allPlayers > 1 then
+                local targetPlayer = allPlayers[math.random(1, #allPlayers)]
+                if targetPlayer ~= LocalPlayer and targetPlayer.Character and targetPlayer.Character:FindFirstChild("HumanoidRootPart") then
+                    LocalPlayer.Character.HumanoidRootPart.CFrame = CFrame.new(targetPlayer.Character.HumanoidRootPart.Position)
+                end
+            end
+        end
+        task.wait(Settings.TPDelay)
+    end
+end)
+
+local function TogglePlatform(state)
+    if state then
+        if not platformPart then
+            platformPart = Instance.new("Part")
+            platformPart.Size = Vector3.new(10, 2, 10)
+            platformPart.Anchored = true
+            platformPart.CanCollide = true
+            platformPart.Material = Enum.Material.SmoothPlastic
+            platformPart.Color = Color3.fromRGB(50, 50, 50)
+            platformPart.Transparency = 0.2
+            platformPart.Name = "SafetyPlatform"
+            platformPart.Parent = Workspace
+        end
+        
+        if not platformConnection then
+            platformConnection = RunService.RenderStepped:Connect(function()
+                if LocalPlayer.Character and LocalPlayer.Character:FindFirstChild("HumanoidRootPart") and platformPart then
+                    local hrp = LocalPlayer.Character.HumanoidRootPart
+                    platformPart.CFrame = CFrame.new(
+                        hrp.Position.X,
+                        hrp.Position.Y + Settings.PlatformY,
+                        hrp.Position.Z
+                    )
+                end
+            end)
+        end
+    else
+        if platformConnection then
+            platformConnection:Disconnect()
+            platformConnection = nil
+        end
+        if platformPart then
+            platformPart:Destroy()
+            platformPart = nil
+        end
+    end
+end
+
 if CoreGui:FindFirstChild("UddachoJust_CustomMenu") then
     CoreGui["UddachoJust_CustomMenu"]:Destroy()
 end
@@ -41,7 +102,6 @@ ScreenGui.Name = "UddachoJust_CustomMenu"
 ScreenGui.ResetOnSpawn = false
 ScreenGui.Parent = CoreGui
 
--- Основной контейнер (Изначально ширина 150)
 local MainFrame = Instance.new("Frame")
 MainFrame.Size = UDim2.new(0, 150, 0, 40)
 MainFrame.Position = UDim2.new(0.3, 0, 0.3, 0)
@@ -50,7 +110,6 @@ MainFrame.Active = true
 MainFrame.Draggable = true
 MainFrame.Parent = ScreenGui
 
--- Верхняя панель (Топбар)
 local TopBar = Instance.new("Frame")
 TopBar.Size = UDim2.new(1, 0, 0, 40)
 TopBar.BackgroundColor3 = Color3.fromRGB(20, 20, 20)
@@ -61,18 +120,16 @@ local TopCorner = Instance.new("UICorner")
 TopCorner.CornerRadius = UDim.new(0, 8)
 TopCorner.Parent = TopBar
 
--- Заголовок
 local Title = Instance.new("TextLabel")
 Title.Size = UDim2.new(1, -60, 1, 0)
 Title.Position = UDim2.new(0, 30, 0, 0)
-Title.Text = "UddachoJust 1.0"
+Title.Text = "UddachoJust 1.1"
 Title.TextColor3 = Color3.fromRGB(255, 255, 255)
 Title.Font = Enum.Font.SourceSansBold
 Title.TextSize = 14
 Title.BackgroundTransparency = 1
 Title.Parent = TopBar
 
--- Кнопка закрытия (X)
 local CloseBtn = Instance.new("TextButton")
 CloseBtn.Size = UDim2.new(0, 30, 1, 0)
 CloseBtn.Position = UDim2.new(0, 0, 0, 0)
@@ -82,9 +139,11 @@ CloseBtn.Font = Enum.Font.SourceSans
 CloseBtn.TextSize = 16
 CloseBtn.BackgroundTransparency = 1
 CloseBtn.Parent = TopBar
-CloseBtn.MouseButton1Click:Connect(function() ScreenGui:Destroy() end)
+CloseBtn.MouseButton1Click:Connect(function() 
+    TogglePlatform(false)
+    ScreenGui:Destroy() 
+end)
 
--- Нижнее тело меню (В развернутом виде будет широким)
 local MenuBody = Instance.new("Frame")
 MenuBody.Size = UDim2.new(1, 0, 0, 260)
 MenuBody.Position = UDim2.new(0, 0, 0, 40)
@@ -98,21 +157,18 @@ local BodyCorner = Instance.new("UICorner")
 BodyCorner.CornerRadius = UDim.new(0, 8)
 BodyCorner.Parent = MenuBody
 
--- Левая боковая панель для вкладок (появляется в широком меню)
 local SidePanel = Instance.new("Frame")
-SidePanel.Size = UDim2.new(0, 110, 1, 0)
+SidePanel.Size = UDim2.new(0, 120, 1, 0)
 SidePanel.BackgroundColor3 = Color3.fromRGB(18, 18, 18)
 SidePanel.BorderSizePixel = 0
 SidePanel.Parent = MenuBody
 
--- Контейнер для контента страниц (занимает всё остальное место справа)
 local ContentContainer = Instance.new("Frame")
-ContentContainer.Size = UDim2.new(1, -120, 1, -10)
-ContentContainer.Position = UDim2.new(0, 115, 0, 5)
+ContentContainer.Size = UDim2.new(1, -130, 1, -10)
+ContentContainer.Position = UDim2.new(0, 125, 0, 5)
 ContentContainer.BackgroundTransparency = 1
 ContentContainer.Parent = MenuBody
 
--- Кнопка сворачивания/разворачивания (v / ^)
 local ToggleBtn = Instance.new("TextButton")
 ToggleBtn.Size = UDim2.new(0, 30, 1, 0)
 ToggleBtn.Position = UDim2.new(1, -30, 0, 0)
@@ -128,13 +184,11 @@ ToggleBtn.MouseButton1Click:Connect(function()
     isOpened = not isOpened
     if isOpened then
         ToggleBtn.Text = "^"
-        -- При открытии увеличиваем ширину до 450 и высоту до 300
         MainFrame.Size = UDim2.new(0, 450, 0, 300)
         MenuBody.Visible = true
     else
         ToggleBtn.Text = "v"
         MenuBody.Visible = false
-        -- При закрытии возвращаем маленькие 150 на 40
         MainFrame.Size = UDim2.new(0, 150, 0, 40)
     end
 end)
@@ -161,6 +215,7 @@ end
 local MainScroll = CreatePage("Main")
 local MovingScroll = CreatePage("Moving")
 local ToolsScroll = CreatePage("Tools")
+local ImportantScroll = CreatePage("Most important")
 
 local function SelectTab(name)
     for k, v in pairs(Pages) do v.Visible = (k == name) end
@@ -175,7 +230,7 @@ local function AddTabButton(name)
     Btn.TextColor3 = Color3.fromRGB(200, 200, 200)
     Btn.BackgroundColor3 = Color3.fromRGB(30, 30, 30)
     Btn.Font = Enum.Font.SourceSans
-    Btn.TextSize = 14
+    Btn.TextSize = 13
     Btn.BorderSizePixel = 0
     Btn.Parent = SidePanel
     
@@ -190,9 +245,9 @@ end
 AddTabButton("Main")
 AddTabButton("Moving")
 AddTabButton("Tools")
+AddTabButton("Most important")
 SelectTab("Main")
 
--- Конструкторы элементов управления (теперь кнопки широкие и удобные)
 local function AddButton(page, text, callback)
     local Btn = Instance.new("TextButton")
     Btn.Size = UDim2.new(1, -10, 0, 35)
@@ -261,7 +316,6 @@ local function AddTextBox(page, placeholder, callback)
     end)
 end
 
--- [ НАПОЛНЕНИЕ ВКЛАДОК ] --
 -- MAIN
 AddButton(MainScroll, "Infinite Yield", function() loadstring(game:HttpGet("https://raw.githubusercontent.com/EdgeIY/infiniteyield/master/source", true))() end)
 AddButton(MainScroll, "Dark Dex", function() loadstring(game:HttpGet("https://raw.githubusercontent.com/infyiff/backup/main/dex.lua", true))() end)
@@ -326,5 +380,52 @@ AddToggle(ToolsScroll, "Sword Killaura", "Sword", function()
             end
         end
         task.wait(.3)
+    end
+end)
+
+-- MOST IMPORTANT
+AddButton(ImportantScroll, "Fly V3", function() 
+    loadstring(game:HttpGet("https://raw.githubusercontent.com/XNEOFF/FlyGuiV3/main/FlyGuiV3.txt"))() 
+end)
+
+AddToggle(ImportantScroll, "Random TP", "RandomTP", function() end)
+AddTextBox(ImportantScroll, "TP Delay (Текущий: 0.5)", function(text)
+    local n = tonumber(text)
+    if n then Settings.TPDelay = n end
+end)
+
+AddButton(ImportantScroll, "Auto Save (Refund)", function() 
+    loadstring(game:HttpGet("https://raw.githubusercontent.com/xxqLgnd/Utilities/main/AutoRefund.lua", true))() 
+end)
+
+AddTextBox(ImportantScroll, "Введите ID для Signal", function(text)
+    if text and text ~= "" then Settings.SignalID = text end
+end)
+AddButton(ImportantScroll, "Send Signal", function()
+    pcall(function()
+        MarketplaceService:SignalPromptPurchaseFinished(LocalPlayer, tonumber(Settings.SignalID), true)
+        MarketplaceService:SignalPromptPurchaseFinished(LocalPlayer, tonumber(Settings.SignalID), false)
+    end)
+end)
+
+AddButton(ImportantScroll, "Client Spy", function() 
+    loadstring(game:HttpGet("https://rawscripts.net/raw/Universal-Script-New-best-Rspy-69101"))() 
+end)
+
+AddButton(ImportantScroll, "Keyboard", function() 
+    loadstring(game:HttpGet("https://rawscripts.net/raw/Universal-Script-New-best-Rspy-69101"))() 
+end)
+
+AddToggle(ImportantScroll, "Safety Platform", "Platform", function(state)
+    TogglePlatform(state)
+end)
+AddTextBox(ImportantScroll, "Platform Y offset (Тек: -3.76)", function(text)
+    local n = tonumber(text)
+    if n then 
+        Settings.PlatformY = n 
+        if Settings.Platform and platformPart then
+            TogglePlatform(false)
+            TogglePlatform(true)
+        end
     end
 end)
