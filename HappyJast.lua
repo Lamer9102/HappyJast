@@ -292,6 +292,19 @@ AddTabButton("Tools")
 AddTabButton("Other")
 SelectTab("Main")
 
+-- Ник игрока внизу панели
+local NickLabel = Instance.new("TextLabel")
+NickLabel.Size = UDim2.new(1, -10, 0, 30)
+NickLabel.Position = UDim2.new(0, 5, 1, -35)
+NickLabel.Text = LocalPlayer.Name
+NickLabel.TextColor3 = Color3.fromRGB(150, 150, 150)
+NickLabel.BackgroundTransparency = 1
+NickLabel.Font = Enum.Font.SourceSans
+NickLabel.TextSize = 12
+NickLabel.TextWrapped = true
+NickLabel.ZIndex = 13
+NickLabel.Parent = SidePanel
+
 local function CreateGroupFrame(page, color)
     local Group = Instance.new("Frame")
     Group.Size = UDim2.new(1, -10, 0, 84)
