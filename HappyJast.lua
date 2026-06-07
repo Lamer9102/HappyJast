@@ -42,10 +42,10 @@ ScreenGui.Name = "UddachoJust_CustomMenu"
 ScreenGui.ResetOnSpawn = false
 ScreenGui.Parent = CoreGui
 
--- Основной контейнер (база для перетаскивания)
+-- Основной контейнер (Ширина уменьшена до 150)
 local MainFrame = Instance.new("Frame")
-MainFrame.Size = UDim2.new(0, 500, 0, 40)
-MainFrame.Position = UDim2.new(0.5, -250, 0.4, -20)
+MainFrame.Size = UDim2.new(0, 150, 0, 40)
+MainFrame.Position = UDim2.new(0.5, -75, 0.4, -20)
 MainFrame.BackgroundTransparency = 1
 MainFrame.Active = true
 MainFrame.Draggable = true
@@ -62,32 +62,32 @@ local TopCorner = Instance.new("UICorner")
 TopCorner.CornerRadius = UDim.new(0, 8)
 TopCorner.Parent = TopBar
 
--- Заголовок по центру
+-- Заголовок (Шрифт чуть уменьшен, чтобы влезть в 150px)
 local Title = Instance.new("TextLabel")
-Title.Size = UDim2.new(1, -80, 1, 0)
-Title.Position = UDim2.new(0, 40, 0, 0)
+Title.Size = UDim2.new(1, -60, 1, 0)
+Title.Position = UDim2.new(0, 30, 0, 0)
 Title.Text = "UddachoJust 1.0"
 Title.TextColor3 = Color3.fromRGB(255, 255, 255)
 Title.Font = Enum.Font.SourceSansBold
-Title.TextSize = 18
+Title.TextSize = 14
 Title.BackgroundTransparency = 1
 Title.Parent = TopBar
 
 -- Кнопка закрытия (слева)
 local CloseBtn = Instance.new("TextButton")
-CloseBtn.Size = UDim2.new(0, 40, 1, 0)
+CloseBtn.Size = UDim2.new(0, 30, 1, 0)
 CloseBtn.Position = UDim2.new(0, 0, 0, 0)
 CloseBtn.Text = "X"
 CloseBtn.TextColor3 = Color3.fromRGB(255, 255, 255)
 CloseBtn.Font = Enum.Font.SourceSans
-CloseBtn.TextSize = 18
+CloseBtn.TextSize = 16
 CloseBtn.BackgroundTransparency = 1
 CloseBtn.Parent = TopBar
 CloseBtn.MouseButton1Click:Connect(function() ScreenGui:Destroy() end)
 
--- Нижнее тело меню
+-- Нижнее тело меню (Вытянуто вниз под вертикальное расположение)
 local MenuBody = Instance.new("Frame")
-MenuBody.Size = UDim2.new(1, 0, 0, 280)
+MenuBody.Size = UDim2.new(1, 0, 0, 340)
 MenuBody.Position = UDim2.new(0, 0, 0, 40)
 MenuBody.BackgroundColor3 = Color3.fromRGB(25, 25, 25)
 MenuBody.BorderSizePixel = 0
@@ -99,24 +99,24 @@ local BodyCorner = Instance.new("UICorner")
 BodyCorner.CornerRadius = UDim.new(0, 8)
 BodyCorner.Parent = MenuBody
 
--- Боковая панель для вкладок
-local SidePanel = Instance.new("Frame")
-SidePanel.Size = UDim2.new(0, 120, 1, 0)
-SidePanel.BackgroundColor3 = Color3.fromRGB(18, 18, 18)
-SidePanel.BorderSizePixel = 0
-SidePanel.Parent = MenuBody
+-- Верхняя панель переключения вкладок внутри тела (вместо боковой)
+local TabPanel = Instance.new("Frame")
+TabPanel.Size = UDim2.new(1, 0, 0, 85)
+TabPanel.BackgroundColor3 = Color3.fromRGB(18, 18, 18)
+TabPanel.BorderSizePixel = 0
+TabPanel.Parent = MenuBody
 
--- Контейнер для контента страниц
+-- Контейнер для контента страниц (занимает всё оставшееся место снизу)
 local ContentContainer = Instance.new("Frame")
-ContentContainer.Size = UDim2.new(1, -130, 1, -10)
-ContentContainer.Position = UDim2.new(0, 125, 0, 5)
+ContentContainer.Size = UDim2.new(1, -10, 1, -95)
+ContentContainer.Position = UDim2.new(0, 5, 0, 90)
 ContentContainer.BackgroundTransparency = 1
 ContentContainer.Parent = MenuBody
 
 -- Кнопка сворачивания/разворачивания (справа)
 local ToggleBtn = Instance.new("TextButton")
-ToggleBtn.Size = UDim2.new(0, 40, 1, 0)
-ToggleBtn.Position = UDim2.new(1, -40, 0, 0)
+ToggleBtn.Size = UDim2.new(0, 30, 1, 0)
+ToggleBtn.Position = UDim2.new(1, -30, 0, 0)
 ToggleBtn.Text = "v"
 ToggleBtn.TextColor3 = Color3.fromRGB(255, 255, 255)
 ToggleBtn.Font = Enum.Font.SourceSans
@@ -129,12 +129,12 @@ ToggleBtn.MouseButton1Click:Connect(function()
     isOpened = not isOpened
     if isOpened then
         ToggleBtn.Text = "^"
-        MainFrame.Size = UDim2.new(0, 500, 0, 320)
+        MainFrame.Size = UDim2.new(0, 150, 0, 380)
         MenuBody.Visible = true
     else
         ToggleBtn.Text = "v"
         MenuBody.Visible = false
-        MainFrame.Size = UDim2.new(0, 500, 0, 40)
+        MainFrame.Size = UDim2.new(0, 150, 0, 40)
     end
 end)
 
@@ -144,12 +144,12 @@ local function CreatePage(name)
     Scroll.Size = UDim2.new(1, 0, 1, 0)
     Scroll.BackgroundTransparency = 1
     Scroll.BorderSizePixel = 0
-    Scroll.ScrollBarThickness = 4
+    Scroll.ScrollBarThickness = 3
     Scroll.Visible = false
     Scroll.Parent = ContentContainer
     
     local List = Instance.new("UIListLayout")
-    List.Padding = UDim.new(0, 6)
+    List.Padding = UDim.new(0, 5)
     List.SortOrder = Enum.SortOrder.LayoutOrder
     List.Parent = Scroll
     
@@ -168,15 +168,15 @@ end
 local tabCount = 0
 local function AddTabButton(name)
     local Btn = Instance.new("TextButton")
-    Btn.Size = UDim2.new(1, -10, 0, 35)
-    Btn.Position = UDim2.new(0, 5, 0, 10 + (tabCount * 40))
+    Btn.Size = UDim2.new(1, -10, 0, 22)
+    Btn.Position = UDim2.new(0, 5, 0, 5 + (tabCount * 25))
     Btn.Text = name
     Btn.TextColor3 = Color3.fromRGB(200, 200, 200)
     Btn.BackgroundColor3 = Color3.fromRGB(30, 30, 30)
     Btn.Font = Enum.Font.SourceSans
-    Btn.TextSize = 15
+    Btn.TextSize = 13
     Btn.BorderSizePixel = 0
-    Btn.Parent = SidePanel
+    Btn.Parent = TabPanel
     
     local BtnCorner = Instance.new("UICorner")
     BtnCorner.CornerRadius = UDim.new(0, 4)
@@ -191,15 +191,16 @@ AddTabButton("Moving")
 AddTabButton("Tools")
 SelectTab("Main")
 
--- Конструкторы элементов управления
+-- Конструкторы элементов управления (оптимизированы под 150px)
 local function AddButton(page, text, callback)
     local Btn = Instance.new("TextButton")
-    Btn.Size = UDim2.new(1, -10, 0, 35)
+    Btn.Size = UDim2.new(1, -5, 0, 35)
     Btn.Text = text
     Btn.TextColor3 = Color3.fromRGB(255, 255, 255)
     Btn.BackgroundColor3 = Color3.fromRGB(40, 40, 40)
     Btn.Font = Enum.Font.SourceSansSemibold
-    Btn.TextSize = 16
+    Btn.TextSize = 13
+    Btn.TextWrapped = true
     Btn.BorderSizePixel = 0
     Btn.Parent = page
     
@@ -212,12 +213,13 @@ end
 
 local function AddToggle(page, text, varName, callback)
     local Btn = Instance.new("TextButton")
-    Btn.Size = UDim2.new(1, -10, 0, 35)
+    Btn.Size = UDim2.new(1, -5, 0, 35)
     Btn.Text = text .. ": OFF"
     Btn.TextColor3 = Color3.fromRGB(200, 200, 200)
     Btn.BackgroundColor3 = Color3.fromRGB(35, 35, 35)
     Btn.Font = Enum.Font.SourceSansSemibold
-    Btn.TextSize = 16
+    Btn.TextSize = 13
+    Btn.TextWrapped = true
     Btn.BorderSizePixel = 0
     Btn.Parent = page
     
@@ -240,14 +242,15 @@ end
 
 local function AddTextBox(page, placeholder, callback)
     local Box = Instance.new("TextBox")
-    Box.Size = UDim2.new(1, -10, 0, 35)
+    Box.Size = UDim2.new(1, -5, 0, 35)
     Box.PlaceholderText = placeholder
     Box.Text = ""
     Box.TextColor3 = Color3.fromRGB(255, 255, 255)
     Box.PlaceholderColor3 = Color3.fromRGB(150, 150, 150)
     Box.BackgroundColor3 = Color3.fromRGB(30, 30, 30)
     Box.Font = Enum.Font.SourceSans
-    Box.TextSize = 15
+    Box.TextSize = 12
+    Box.TextWrapped = true
     Box.BorderSizePixel = 0
     Box.Parent = page
     
@@ -295,19 +298,19 @@ AddToggle(ToolsScroll, "Auto Hide Players", "Hide", function(state)
         task.wait(.2)
     end
 end)
-AddButton(ToolsScroll, "Fire All ProximityPrompt", function()
+AddButton(ToolsScroll, "Fire All Prompts", function()
     for _, v in ipairs(Workspace:GetDescendants()) do if v:IsA("ProximityPrompt") then fireproximityprompt(v) end end
 end)
 AddButton(ToolsScroll, "HoldDuration 0", function()
     for _, v in pairs(Workspace:GetDescendants()) do if v:IsA("ProximityPrompt") then v.HoldDuration = 0 end end
 end)
-AddButton(ToolsScroll, "Fire All ClickDetectors", function()
+AddButton(ToolsScroll, "Fire ClickDetectors", function()
     for _, v in ipairs(Workspace:GetDescendants()) do if v:IsA("ClickDetector") then fireclickdetector(v) end end
 end)
-AddButton(ToolsScroll, "Fire All Firetouchinterests", function()
+AddButton(ToolsScroll, "Fire TouchInterests", function()
     for _, v in ipairs(Workspace:GetDescendants()) do if v:IsA("TouchTransmitter") then FireTouchTransmitter(v) end end
 end)
-AddTextBox(ToolsScroll, "Sword Killaura Range (жми Enter)", function(text)
+AddTextBox(ToolsScroll, "Killaura Range (Enter)", function(text)
     local n = tonumber(text)
     if n then Settings.Range = n end
 end)
