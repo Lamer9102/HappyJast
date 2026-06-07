@@ -332,7 +332,23 @@ local function AddButton(page, text, callback)
     BCorn.CornerRadius = UDim.new(0, 5)
     BCorn.Parent = Btn
 
+    local pressX, pressY = 0, 0
+    local pressed = false
+
+    Btn.MouseButton1Down:Connect(function()
+        local mouse = LocalPlayer:GetMouse()
+        pressX = mouse.X
+        pressY = mouse.Y
+        pressed = true
+    end)
+
     Btn.MouseButton1Up:Connect(function()
+        if not pressed then return end
+        pressed = false
+        local mouse = LocalPlayer:GetMouse()
+        local dx = math.abs(mouse.X - pressX)
+        local dy = math.abs(mouse.Y - pressY)
+        if dx > 10 or dy > 10 then return end
         if IsScrolling(Btn) then return end
         getgenv().Settings = Settings
         pcall(callback)
@@ -357,7 +373,23 @@ local function AddToggle(page, text, varName, callback)
     BCorn.CornerRadius = UDim.new(0, 5)
     BCorn.Parent = Btn
 
+    local pressX, pressY = 0, 0
+    local pressed = false
+
+    Btn.MouseButton1Down:Connect(function()
+        local mouse = LocalPlayer:GetMouse()
+        pressX = mouse.X
+        pressY = mouse.Y
+        pressed = true
+    end)
+
     Btn.MouseButton1Up:Connect(function()
+        if not pressed then return end
+        pressed = false
+        local mouse = LocalPlayer:GetMouse()
+        local dx = math.abs(mouse.X - pressX)
+        local dy = math.abs(mouse.Y - pressY)
+        if dx > 10 or dy > 10 then return end
         if IsScrolling(Btn) then return end
         getgenv().Settings = Settings
         Settings[varName] = not Settings[varName]
