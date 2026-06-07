@@ -241,7 +241,7 @@ local function CreatePage(name)
     Scroll.InputChanged:Connect(function(input)
         if input.UserInputType == Enum.UserInputType.MouseMovement
         or input.UserInputType == Enum.UserInputType.Touch then
-            if math.abs(input.Position.Y - ScrollStates[Scroll].mouseY) > 6 then
+            if math.abs(input.Position.Y - ScrollStates[Scroll].mouseY) > 3 then
                 ScrollStates[Scroll].scrolling = true
             end
         end
