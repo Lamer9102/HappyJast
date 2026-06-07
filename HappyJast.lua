@@ -115,7 +115,7 @@ end
 local ScreenGui = Instance.new("ScreenGui")
 ScreenGui.Name = "UddachoJust_CustomMenu"
 ScreenGui.ResetOnSpawn = false
-ScreenGui.DisplayOrder = 999999 -- Исправление: ставит твое меню выше слоев Infinite Yield
+ScreenGui.DisplayOrder = 99999999 -- Максимальный приоритет поверх всех читов
 ScreenGui.Parent = CoreGui
 
 local MainFrame = Instance.new("Frame")
@@ -124,12 +124,14 @@ MainFrame.Position = UDim2.new(0.3, 0, 0.3, 0)
 MainFrame.BackgroundTransparency = 1
 MainFrame.Active = true
 MainFrame.Draggable = true
+MainFrame.ZIndex = 10
 MainFrame.Parent = ScreenGui
 
 local TopBar = Instance.new("Frame")
 TopBar.Size = UDim2.new(1, 0, 0, 40)
 TopBar.BackgroundColor3 = Color3.fromRGB(20, 20, 20)
 TopBar.BorderSizePixel = 0
+TopBar.ZIndex = 11
 TopBar.Parent = MainFrame
 
 local TopCorner = Instance.new("UICorner")
@@ -144,6 +146,7 @@ Title.TextColor3 = Color3.fromRGB(255, 255, 255)
 Title.Font = Enum.Font.SourceSansBold
 Title.TextSize = 14
 Title.BackgroundTransparency = 1
+Title.ZIndex = 12
 Title.Parent = TopBar
 
 local CloseBtn = Instance.new("TextButton")
@@ -154,8 +157,9 @@ CloseBtn.TextColor3 = Color3.fromRGB(255, 255, 255)
 CloseBtn.Font = Enum.Font.SourceSans
 CloseBtn.TextSize = 16
 CloseBtn.BackgroundTransparency = 1
+CloseBtn.ZIndex = 13
 CloseBtn.Parent = TopBar
-CloseBtn.MouseButton1Click:Connect(function() 
+CloseBtn.MouseButton1Down:Connect(function() 
     TogglePlatform(false)
     ScreenGui:Destroy() 
 end)
@@ -167,6 +171,7 @@ MenuBody.BackgroundColor3 = Color3.fromRGB(25, 25, 25)
 MenuBody.BorderSizePixel = 0
 MenuBody.ClipsDescendants = true
 MenuBody.Visible = false
+MenuBody.ZIndex = 10
 MenuBody.Parent = MainFrame
 
 local BodyCorner = Instance.new("UICorner")
@@ -177,12 +182,14 @@ local SidePanel = Instance.new("Frame")
 SidePanel.Size = UDim2.new(0, 120, 1, 0)
 SidePanel.BackgroundColor3 = Color3.fromRGB(18, 18, 18)
 SidePanel.BorderSizePixel = 0
+SidePanel.ZIndex = 11
 SidePanel.Parent = MenuBody
 
 local ContentContainer = Instance.new("Frame")
 ContentContainer.Size = UDim2.new(1, -130, 1, -10)
 ContentContainer.Position = UDim2.new(0, 125, 0, 5)
 ContentContainer.BackgroundTransparency = 1
+ContentContainer.ZIndex = 11
 ContentContainer.Parent = MenuBody
 
 local ToggleBtn = Instance.new("TextButton")
@@ -193,10 +200,11 @@ ToggleBtn.TextColor3 = Color3.fromRGB(255, 255, 255)
 ToggleBtn.Font = Enum.Font.SourceSans
 ToggleBtn.TextSize = 16
 ToggleBtn.BackgroundTransparency = 1
+ToggleBtn.ZIndex = 13
 ToggleBtn.Parent = TopBar
 
 local isOpened = false
-ToggleBtn.MouseButton1Click:Connect(function()
+ToggleBtn.MouseButton1Down:Connect(function()
     isOpened = not isOpened
     if isOpened then
         ToggleBtn.Text = "^"
@@ -217,6 +225,7 @@ local function CreatePage(name)
     Scroll.BorderSizePixel = 0
     Scroll.ScrollBarThickness = 4
     Scroll.Visible = false
+    Scroll.ZIndex = 12
     Scroll.Parent = ContentContainer
     
     local List = Instance.new("UIListLayout")
@@ -248,13 +257,14 @@ local function AddTabButton(name)
     Btn.Font = Enum.Font.SourceSans
     Btn.TextSize = 13
     Btn.BorderSizePixel = 0
+    Btn.ZIndex = 13
     Btn.Parent = SidePanel
     
     local BtnCorner = Instance.new("UICorner")
     BtnCorner.CornerRadius = UDim.new(0, 4)
     BtnCorner.Parent = Btn
     
-    Btn.MouseButton1Click:Connect(function() SelectTab(name) end)
+    Btn.MouseButton1Down:Connect(function() SelectTab(name) end)
     tabCount = tabCount + 1
 end
 
@@ -270,6 +280,7 @@ local function CreateGroupFrame(page, color)
     Group.BackgroundColor3 = color
     Group.BorderSizePixel = 0
     Group.Active = false
+    Group.ZIndex = 13
     Group.Parent = page
     
     local GCorn = Instance.new("UICorner")
@@ -296,13 +307,14 @@ local function AddButton(page, text, callback)
     Btn.TextSize = 14
     Btn.BorderSizePixel = 0
     Btn.Active = true
+    Btn.ZIndex = 14
     Btn.Parent = page
     
     local BCorn = Instance.new("UICorner")
     BCorn.CornerRadius = UDim.new(0, 5)
     BCorn.Parent = Btn
     
-    Btn.MouseButton1Click:Connect(function() pcall(callback) end)
+    Btn.MouseButton1Down:Connect(function() pcall(callback) end)
     return Btn
 end
 
@@ -316,13 +328,15 @@ local function AddToggle(page, text, varName, callback)
     Btn.TextSize = 14
     Btn.BorderSizePixel = 0
     Btn.Active = true
+    Btn.ZIndex = 15 -- Повышенный приоритет клика
     Btn.Parent = page
     
     local BCorn = Instance.new("UICorner")
     BCorn.CornerRadius = UDim.new(0, 5)
     BCorn.Parent = Btn
     
-    Btn.MouseButton1Click:Connect(function()
+    -- Переведено на MouseButton1Down для игнорирования блокировок интерфейса со стороны IY
+    Btn.MouseButton1Down:Connect(function()
         Settings[varName] = not Settings[varName]
         if Settings[varName] then
             Btn.Text = text .. ": ON"
@@ -350,6 +364,7 @@ local function AddTextBox(page, placeholder, callback)
     Box.TextSize = 13
     Box.BorderSizePixel = 0
     Box.Active = true
+    Box.ZIndex = 14
     Box.Parent = page
     
     local BCorn = Instance.new("UICorner")
