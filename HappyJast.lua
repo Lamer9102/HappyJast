@@ -32,75 +32,113 @@ local function FireTouchTransmitter(part)
     end
 end
 
--- [ СОЗДАНИЕ СОБСТВЕННОГО ИНТЕРФЕЙСА ] --
-if CoreGui:FindFirstChild("xxqLgnd_CustomMenu") then
-    CoreGui["xxqLgnd_CustomMenu"]:Destroy()
+-- [ СОЗДАНИЕ ИНТЕРФЕЙСА ] --
+if CoreGui:FindFirstChild("UddachoJust_CustomMenu") then
+    CoreGui["UddachoJust_CustomMenu"]:Destroy()
 end
 
 local ScreenGui = Instance.new("ScreenGui")
-ScreenGui.Name = "xxqLgnd_CustomMenu"
+ScreenGui.Name = "UddachoJust_CustomMenu"
 ScreenGui.ResetOnSpawn = false
 ScreenGui.Parent = CoreGui
 
--- Главное окно
+-- Основной контейнер (база для перетаскивания)
 local MainFrame = Instance.new("Frame")
-MainFrame.Size = UDim2.new(0, 500, 0, 320)
-MainFrame.Position = UDim2.new(0.5, -250, 0.5, -160)
-MainFrame.BackgroundColor3 = Color3.fromRGB(25, 25, 25)
-MainFrame.BorderSizePixel = 0
+MainFrame.Size = UDim2.new(0, 500, 0, 40)
+MainFrame.Position = UDim2.new(0.5, -250, 0.4, -20)
+MainFrame.BackgroundTransparency = 1
 MainFrame.Active = true
 MainFrame.Draggable = true
 MainFrame.Parent = ScreenGui
 
-local Corner = Instance.new("UICorner")
-Corner.CornerRadius = UDim.new(0, 8)
-Corner.Parent = MainFrame
+-- Верхняя панель (Топбар)
+local TopBar = Instance.new("Frame")
+TopBar.Size = UDim2.new(1, 0, 0, 40)
+TopBar.BackgroundColor3 = Color3.fromRGB(20, 20, 20)
+TopBar.BorderSizePixel = 0
+TopBar.Parent = MainFrame
 
--- Боковая панель (Вкладки)
-local SidePanel = Instance.new("Frame")
-SidePanel.Size = UDim2.new(0, 130, 1, 0)
-SidePanel.BackgroundColor3 = Color3.fromRGB(18, 18, 18)
-SidePanel.BorderSizePixel = 0
-SidePanel.Parent = MainFrame
+local TopCorner = Instance.new("UICorner")
+TopCorner.CornerRadius = UDim.new(0, 8)
+TopCorner.Parent = TopBar
 
-local SideCorner = Instance.new("UICorner")
-SideCorner.CornerRadius = UDim.new(0, 8)
-SideCorner.Parent = SidePanel
-
--- Заголовок
+-- Заголовок по центру
 local Title = Instance.new("TextLabel")
-Title.Size = UDim2.new(1, -10, 0, 40)
-Title.Position = UDim2.new(0, 10, 0, 0)
-Title.Text = "xxqLgnd v1.3"
+Title.Size = UDim2.new(1, -80, 1, 0)
+Title.Position = UDim2.new(0, 40, 0, 0)
+Title.Text = "UddachoJust 1.0"
 Title.TextColor3 = Color3.fromRGB(255, 255, 255)
 Title.Font = Enum.Font.SourceSansBold
 Title.TextSize = 18
-Title.TextXAlignment = Enum.TextXAlignment.Left
 Title.BackgroundTransparency = 1
-Title.Parent = SidePanel
+Title.Parent = TopBar
 
--- Кнопка закрытия
+-- Кнопка закрытия (слева)
 local CloseBtn = Instance.new("TextButton")
-CloseBtn.Size = UDim2.new(0, 30, 0, 30)
-CloseBtn.Position = UDim2.new(1, -35, 0, 5)
+CloseBtn.Size = UDim2.new(0, 40, 1, 0)
+CloseBtn.Position = UDim2.new(0, 0, 0, 0)
 CloseBtn.Text = "X"
-CloseBtn.TextColor3 = Color3.fromRGB(200, 50, 50)
-CloseBtn.Font = Enum.Font.SourceSansBold
+CloseBtn.TextColor3 = Color3.fromRGB(255, 255, 255)
+CloseBtn.Font = Enum.Font.SourceSans
 CloseBtn.TextSize = 18
 CloseBtn.BackgroundTransparency = 1
-CloseBtn.Parent = MainFrame
+CloseBtn.Parent = TopBar
 CloseBtn.MouseButton1Click:Connect(function() ScreenGui:Destroy() end)
 
--- Контейнер для списков кнопок
+-- Нижнее тело меню
+local MenuBody = Instance.new("Frame")
+MenuBody.Size = UDim2.new(1, 0, 0, 280)
+MenuBody.Position = UDim2.new(0, 0, 0, 40)
+MenuBody.BackgroundColor3 = Color3.fromRGB(25, 25, 25)
+MenuBody.BorderSizePixel = 0
+MenuBody.ClipsDescendants = true
+MenuBody.Visible = false
+MenuBody.Parent = MainFrame
+
+local BodyCorner = Instance.new("UICorner")
+BodyCorner.CornerRadius = UDim.new(0, 8)
+BodyCorner.Parent = MenuBody
+
+-- Боковая панель для вкладок
+local SidePanel = Instance.new("Frame")
+SidePanel.Size = UDim2.new(0, 120, 1, 0)
+SidePanel.BackgroundColor3 = Color3.fromRGB(18, 18, 18)
+SidePanel.BorderSizePixel = 0
+SidePanel.Parent = MenuBody
+
+-- Контейнер для контента страниц
 local ContentContainer = Instance.new("Frame")
-ContentContainer.Size = UDim2.new(1, -140, 1, -50)
-ContentContainer.Position = UDim2.new(0, 135, 0, 45)
+ContentContainer.Size = UDim2.new(1, -130, 1, -10)
+ContentContainer.Position = UDim2.new(0, 125, 0, 5)
 ContentContainer.BackgroundTransparency = 1
-ContentContainer.Parent = MainFrame
+ContentContainer.Parent = MenuBody
+
+-- Кнопка сворачивания/разворачивания (справа)
+local ToggleBtn = Instance.new("TextButton")
+ToggleBtn.Size = UDim2.new(0, 40, 1, 0)
+ToggleBtn.Position = UDim2.new(1, -40, 0, 0)
+ToggleBtn.Text = "v"
+ToggleBtn.TextColor3 = Color3.fromRGB(255, 255, 255)
+ToggleBtn.Font = Enum.Font.SourceSans
+ToggleBtn.TextSize = 16
+ToggleBtn.BackgroundTransparency = 1
+ToggleBtn.Parent = TopBar
+
+local isOpened = false
+ToggleBtn.MouseButton1Click:Connect(function()
+    isOpened = not isOpened
+    if isOpened then
+        ToggleBtn.Text = "^"
+        MainFrame.Size = UDim2.new(0, 500, 0, 320)
+        MenuBody.Visible = true
+    else
+        ToggleBtn.Text = "v"
+        MenuBody.Visible = false
+        MainFrame.Size = UDim2.new(0, 500, 0, 40)
+    end
+end)
 
 local Pages = {}
-local currentTab = nil
-
 local function CreatePage(name)
     local Scroll = Instance.new("ScrollingFrame")
     Scroll.Size = UDim2.new(1, 0, 1, 0)
@@ -123,7 +161,6 @@ local MainScroll = CreatePage("Main")
 local MovingScroll = CreatePage("Moving")
 local ToolsScroll = CreatePage("Tools")
 
--- Переключение вкладок
 local function SelectTab(name)
     for k, v in pairs(Pages) do v.Visible = (k == name) end
 end
@@ -132,7 +169,7 @@ local tabCount = 0
 local function AddTabButton(name)
     local Btn = Instance.new("TextButton")
     Btn.Size = UDim2.new(1, -10, 0, 35)
-    Btn.Position = UDim2.new(0, 5, 0, 45 + (tabCount * 40))
+    Btn.Position = UDim2.new(0, 5, 0, 10 + (tabCount * 40))
     Btn.Text = name
     Btn.TextColor3 = Color3.fromRGB(200, 200, 200)
     Btn.BackgroundColor3 = Color3.fromRGB(30, 30, 30)
@@ -154,7 +191,7 @@ AddTabButton("Moving")
 AddTabButton("Tools")
 SelectTab("Main")
 
--- Конструкторы элементов
+-- Конструкторы элементов управления
 local function AddButton(page, text, callback)
     local Btn = Instance.new("TextButton")
     Btn.Size = UDim2.new(1, -10, 0, 35)
@@ -170,9 +207,7 @@ local function AddButton(page, text, callback)
     BCorn.CornerRadius = UDim.new(0, 5)
     BCorn.Parent = Btn
     
-    Btn.MouseButton1Click:Connect(function()
-        pcall(callback)
-    end)
+    Btn.MouseButton1Click:Connect(function() pcall(callback) end)
 end
 
 local function AddToggle(page, text, varName, callback)
@@ -221,14 +256,11 @@ local function AddTextBox(page, placeholder, callback)
     BCorn.Parent = Box
     
     Box.FocusLost:Connect(function(enterPressed)
-        if enterPressed then
-            pcall(callback, Box.Text)
-        end
+        if enterPressed then pcall(callback, Box.Text) end
     end)
 end
 
 -- [ НАПОЛНЕНИЕ ВКЛАДОК ] --
-
 -- MAIN
 AddButton(MainScroll, "Infinite Yield", function() loadstring(game:HttpGet("https://raw.githubusercontent.com/EdgeIY/infiniteyield/master/source", true))() end)
 AddButton(MainScroll, "Dark Dex", function() loadstring(game:HttpGet("https://raw.githubusercontent.com/infyiff/backup/main/dex.lua", true))() end)
