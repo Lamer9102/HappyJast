@@ -250,7 +250,7 @@ local function CreatePage(name)
     Scroll.InputEnded:Connect(function(input)
         if input.UserInputType == Enum.UserInputType.MouseButton1
         or input.UserInputType == Enum.UserInputType.Touch then
-            task.delay(0.1, function()
+            task.delay(0.4, function()
                 ScrollStates[Scroll].scrolling = false
             end)
         end
