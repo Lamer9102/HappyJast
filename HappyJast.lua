@@ -267,6 +267,7 @@ local function CreateGroupFrame(page, color)
     Group.Size = UDim2.new(1, -10, 0, 84)
     Group.BackgroundColor3 = color
     Group.BorderSizePixel = 0
+    Group.Active = false -- Исправление: рамка не блокирует клики
     Group.Parent = page
     
     local GCorn = Instance.new("UICorner")
@@ -292,6 +293,7 @@ local function AddButton(page, text, callback)
     Btn.Font = Enum.Font.SourceSansSemibold
     Btn.TextSize = 14
     Btn.BorderSizePixel = 0
+    Btn.Active = true
     Btn.Parent = page
     
     local BCorn = Instance.new("UICorner")
@@ -311,6 +313,7 @@ local function AddToggle(page, text, varName, callback)
     Btn.Font = Enum.Font.SourceSansSemibold
     Btn.TextSize = 14
     Btn.BorderSizePixel = 0
+    Btn.Active = true
     Btn.Parent = page
     
     local BCorn = Instance.new("UICorner")
@@ -342,6 +345,7 @@ local function AddTextBox(page, placeholder, callback)
     Box.Font = Enum.Font.SourceSans
     Box.TextSize = 13
     Box.BorderSizePixel = 0
+    Box.Active = true
     Box.Parent = page
     
     local BCorn = Instance.new("UICorner")
