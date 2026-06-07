@@ -151,7 +151,7 @@ CloseBtn.TextSize = 16
 CloseBtn.BackgroundTransparency = 1
 CloseBtn.ZIndex = 13
 CloseBtn.Parent = TopBar
-CloseBtn.MouseButton1Down:Connect(function()
+CloseBtn.MouseButton1Up:Connect(function()
     TogglePlatform(false)
     ScreenGui:Destroy()
 end)
@@ -196,7 +196,7 @@ ToggleBtn.ZIndex = 13
 ToggleBtn.Parent = TopBar
 
 local isOpened = false
-ToggleBtn.MouseButton1Down:Connect(function()
+ToggleBtn.MouseButton1Up:Connect(function()
     isOpened = not isOpened
     if isOpened then
         ToggleBtn.Text = "^"
@@ -211,7 +211,7 @@ end)
 
 -- Страницы с защитой от скролла
 local Pages = {}
-local ScrollStates = {} -- Храним состояние скролла для каждой страницы
+local ScrollStates = {}
 
 local function CreatePage(name)
     local Scroll = Instance.new("ScrollingFrame")
@@ -228,32 +228,38 @@ local function CreatePage(name)
     List.SortOrder = Enum.SortOrder.LayoutOrder
     List.Parent = Scroll
 
-    ScrollStates[name] = false
-    local lastScrollTime = 0
+    ScrollStates[Scroll] = { scrolling = false, mouseY = 0 }
 
-    Scroll:GetPropertyChangedSignal("CanvasPosition"):Connect(function()
-        ScrollStates[name] = true
-        lastScrollTime = tick()
-        task.delay(0.18, function()
-            if tick() - lastScrollTime >= 0.18 then
-                ScrollStates[name] = false
+    Scroll.InputBegan:Connect(function(input)
+        if input.UserInputType == Enum.UserInputType.MouseButton1
+        or input.UserInputType == Enum.UserInputType.Touch then
+            ScrollStates[Scroll].scrolling = false
+            ScrollStates[Scroll].mouseY = input.Position.Y
+        end
+    end)
+
+    Scroll.InputChanged:Connect(function(input)
+        if input.UserInputType == Enum.UserInputType.MouseMovement
+        or input.UserInputType == Enum.UserInputType.Touch then
+            if math.abs(input.Position.Y - ScrollStates[Scroll].mouseY) > 6 then
+                ScrollStates[Scroll].scrolling = true
             end
-        end)
+        end
+    end)
+
+    Scroll.InputEnded:Connect(function(input)
+        if input.UserInputType == Enum.UserInputType.MouseButton1
+        or input.UserInputType == Enum.UserInputType.Touch then
+            task.delay(0.1, function()
+                ScrollStates[Scroll].scrolling = false
+            end)
+        end
     end)
 
     Pages[name] = Scroll
     return Scroll
 end
 
--- Находим имя страницы по её ScrollingFrame
-local function GetPageName(scroll)
-    for name, page in pairs(Pages) do
-        if page == scroll then return name end
-    end
-    return nil
-end
-
--- Ищем родительский ScrollingFrame у элемента
 local function FindParentScroll(element)
     local current = element.Parent
     while current do
@@ -266,14 +272,13 @@ end
 local function IsScrolling(element)
     local scroll = FindParentScroll(element)
     if not scroll then return false end
-    local pageName = GetPageName(scroll)
-    if not pageName then return false end
-    return ScrollStates[pageName] == true
+    local state = ScrollStates[scroll]
+    return state and state.scrolling == true
 end
 
-local MainScroll    = CreatePage("Main")
-local MovingScroll  = CreatePage("Moving")
-local ToolsScroll   = CreatePage("Tools")
+local MainScroll      = CreatePage("Main")
+local MovingScroll    = CreatePage("Moving")
+local ToolsScroll     = CreatePage("Tools")
 local ImportantScroll = CreatePage("Other")
 
 local function SelectTab(name)
@@ -299,7 +304,7 @@ local function AddTabButton(name)
     BtnCorner.CornerRadius = UDim.new(0, 4)
     BtnCorner.Parent = Btn
 
-    Btn.MouseButton1Down:Connect(function() SelectTab(name) end)
+    Btn.MouseButton1Up:Connect(function() SelectTab(name) end)
     tabCount = tabCount + 1
 end
 
@@ -349,7 +354,7 @@ local function AddButton(page, text, callback)
     BCorn.CornerRadius = UDim.new(0, 5)
     BCorn.Parent = Btn
 
-    Btn.MouseButton1Down:Connect(function()
+    Btn.MouseButton1Up:Connect(function()
         if IsScrolling(Btn) then return end
         getgenv().Settings = Settings
         pcall(callback)
@@ -374,7 +379,7 @@ local function AddToggle(page, text, varName, callback)
     BCorn.CornerRadius = UDim.new(0, 5)
     BCorn.Parent = Btn
 
-    Btn.MouseButton1Down:Connect(function()
+    Btn.MouseButton1Up:Connect(function()
         if IsScrolling(Btn) then return end
         getgenv().Settings = Settings
         Settings[varName] = not Settings[varName]
