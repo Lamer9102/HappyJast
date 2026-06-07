@@ -1,25 +1,20 @@
--- Ожидание полной загрузки игры и сервисов для авто-инжекта
 if not game:IsLoaded() then
     game.Loaded:Wait()
 end
 
 local Players = game:GetService("Players")
--- Ждем, пока в игре появится локальный игрок
 if not Players.LocalPlayer then
     Players:GetPropertyChangedSignal("LocalPlayer"):Wait()
 end
 
--- Дополнительная безопасная пауза (3 секунды) для прогрузки интернет-ссылок
 task.wait(3)
 
--- Основные сервисы
 local Workspace = game:GetService("Workspace")
 local LocalPlayer = Players.LocalPlayer
 local CoreGui = game:GetService("CoreGui")
 local RunService = game:GetService("RunService")
 local MarketplaceService = game:GetService("MarketplaceService")
 
--- Защищаем настройки: если IY их сносит, мы их жестко удерживаем локально
 local Settings = {
     Mouse = false,
     Hide = false,
@@ -56,7 +51,6 @@ local function FireTouchTransmitter(part)
     end
 end
 
--- Поток для Random TP
 task.spawn(function()
     while true do
         if Settings.RandomTP and LocalPlayer.Character and LocalPlayer.Character:FindFirstChild("HumanoidRootPart") then
@@ -85,16 +79,11 @@ local function TogglePlatform(state)
             platformPart.Name = "SafetyPlatform"
             platformPart.Parent = Workspace
         end
-        
         if not platformConnection then
             platformConnection = RunService.RenderStepped:Connect(function()
                 if LocalPlayer.Character and LocalPlayer.Character:FindFirstChild("HumanoidRootPart") and platformPart then
                     local hrp = LocalPlayer.Character.HumanoidRootPart
-                    platformPart.CFrame = CFrame.new(
-                        hrp.Position.X,
-                        hrp.Position.Y + Settings.PlatformY,
-                        hrp.Position.Z
-                    )
+                    platformPart.CFrame = CFrame.new(hrp.Position.X, hrp.Position.Y + Settings.PlatformY, hrp.Position.Z)
                 end
             end)
         end
@@ -110,6 +99,7 @@ local function TogglePlatform(state)
     end
 end
 
+-- GUI
 if CoreGui:FindFirstChild("UddachoJust_CustomMenu") then
     CoreGui["UddachoJust_CustomMenu"]:Destroy()
 end
@@ -161,9 +151,9 @@ CloseBtn.TextSize = 16
 CloseBtn.BackgroundTransparency = 1
 CloseBtn.ZIndex = 13
 CloseBtn.Parent = TopBar
-CloseBtn.MouseButton1Down:Connect(function() 
+CloseBtn.MouseButton1Down:Connect(function()
     TogglePlatform(false)
-    ScreenGui:Destroy() 
+    ScreenGui:Destroy()
 end)
 
 local MenuBody = Instance.new("Frame")
@@ -219,7 +209,10 @@ ToggleBtn.MouseButton1Down:Connect(function()
     end
 end)
 
+-- Страницы с защитой от скролла
 local Pages = {}
+local ScrollStates = {} -- Храним состояние скролла для каждой страницы
+
 local function CreatePage(name)
     local Scroll = Instance.new("ScrollingFrame")
     Scroll.Size = UDim2.new(1, 0, 1, 0)
@@ -229,24 +222,62 @@ local function CreatePage(name)
     Scroll.Visible = false
     Scroll.ZIndex = 12
     Scroll.Parent = ContentContainer
-    
+
     local List = Instance.new("UIListLayout")
     List.Padding = UDim.new(0, 6)
     List.SortOrder = Enum.SortOrder.LayoutOrder
     List.Parent = Scroll
-    
+
+    ScrollStates[name] = false
+    local lastScrollTime = 0
+
+    Scroll:GetPropertyChangedSignal("CanvasPosition"):Connect(function()
+        ScrollStates[name] = true
+        lastScrollTime = tick()
+        task.delay(0.18, function()
+            if tick() - lastScrollTime >= 0.18 then
+                ScrollStates[name] = false
+            end
+        end)
+    end)
+
     Pages[name] = Scroll
     return Scroll
 end
 
-local MainScroll = CreatePage("Main")
-local MovingScroll = CreatePage("Moving")
-local ToolsScroll = CreatePage("Tools")
+-- Находим имя страницы по её ScrollingFrame
+local function GetPageName(scroll)
+    for name, page in pairs(Pages) do
+        if page == scroll then return name end
+    end
+    return nil
+end
+
+-- Ищем родительский ScrollingFrame у элемента
+local function FindParentScroll(element)
+    local current = element.Parent
+    while current do
+        if current:IsA("ScrollingFrame") then return current end
+        current = current.Parent
+    end
+    return nil
+end
+
+local function IsScrolling(element)
+    local scroll = FindParentScroll(element)
+    if not scroll then return false end
+    local pageName = GetPageName(scroll)
+    if not pageName then return false end
+    return ScrollStates[pageName] == true
+end
+
+local MainScroll    = CreatePage("Main")
+local MovingScroll  = CreatePage("Moving")
+local ToolsScroll   = CreatePage("Tools")
 local ImportantScroll = CreatePage("Other")
 
 local function SelectTab(name)
-    -- Пересохраняем таблицу в getgenv принудительно при каждом клике по вкладкам
-    getgenv().Settings = Settings 
+    getgenv().Settings = Settings
     for k, v in pairs(Pages) do v.Visible = (k == name) end
 end
 
@@ -263,11 +294,11 @@ local function AddTabButton(name)
     Btn.BorderSizePixel = 0
     Btn.ZIndex = 13
     Btn.Parent = SidePanel
-    
+
     local BtnCorner = Instance.new("UICorner")
     BtnCorner.CornerRadius = UDim.new(0, 4)
     BtnCorner.Parent = Btn
-    
+
     Btn.MouseButton1Down:Connect(function() SelectTab(name) end)
     tabCount = tabCount + 1
 end
@@ -286,18 +317,18 @@ local function CreateGroupFrame(page, color)
     Group.Active = false
     Group.ZIndex = 13
     Group.Parent = page
-    
+
     local GCorn = Instance.new("UICorner")
     GCorn.CornerRadius = UDim.new(0, 6)
     GCorn.Parent = Group
-    
+
     local GList = Instance.new("UIListLayout")
     GList.Padding = UDim.new(0, 4)
     GList.SortOrder = Enum.SortOrder.LayoutOrder
     GList.HorizontalAlignment = Enum.HorizontalAlignment.Center
     GList.VerticalAlignment = Enum.VerticalAlignment.Center
     GList.Parent = Group
-    
+
     return Group
 end
 
@@ -313,14 +344,15 @@ local function AddButton(page, text, callback)
     Btn.Active = true
     Btn.ZIndex = 14
     Btn.Parent = page
-    
+
     local BCorn = Instance.new("UICorner")
     BCorn.CornerRadius = UDim.new(0, 5)
     BCorn.Parent = Btn
-    
-    Btn.MouseButton1Down:Connect(function() 
-        getgenv().Settings = Settings -- Защитный бэкап сред перед вызовом функций
-        pcall(callback) 
+
+    Btn.MouseButton1Down:Connect(function()
+        if IsScrolling(Btn) then return end
+        getgenv().Settings = Settings
+        pcall(callback)
     end)
     return Btn
 end
@@ -337,15 +369,14 @@ local function AddToggle(page, text, varName, callback)
     Btn.Active = true
     Btn.ZIndex = 15
     Btn.Parent = page
-    
+
     local BCorn = Instance.new("UICorner")
     BCorn.CornerRadius = UDim.new(0, 5)
     BCorn.Parent = Btn
-    
+
     Btn.MouseButton1Down:Connect(function()
-        -- Восстанавливаем окружение глобально принудительно на случай форс-мажора от IY
+        if IsScrolling(Btn) then return end
         getgenv().Settings = Settings
-        
         Settings[varName] = not Settings[varName]
         if Settings[varName] then
             Btn.Text = text .. ": ON"
@@ -375,15 +406,15 @@ local function AddTextBox(page, placeholder, callback)
     Box.Active = true
     Box.ZIndex = 14
     Box.Parent = page
-    
+
     local BCorn = Instance.new("UICorner")
     BCorn.CornerRadius = UDim.new(0, 5)
     BCorn.Parent = Box
-    
+
     Box.FocusLost:Connect(function(enterPressed)
-        if enterPressed then 
+        if enterPressed then
             getgenv().Settings = Settings
-            pcall(callback, Box.Text) 
+            pcall(callback, Box.Text)
         end
     end)
     return Box
@@ -461,8 +492,8 @@ b1.Size = UDim2.new(1, -6, 0, 35)
 b2.Size = UDim2.new(1, -6, 0, 35)
 
 -- OTHER
-AddButton(ImportantScroll, "Fly V3", function() 
-    loadstring(game:HttpGet("https://raw.githubusercontent.com/XNEOFF/FlyGuiV3/main/FlyGuiV3.txt"))() 
+AddButton(ImportantScroll, "Fly V3", function()
+    loadstring(game:HttpGet("https://raw.githubusercontent.com/XNEOFF/FlyGuiV3/main/FlyGuiV3.txt"))()
 end)
 
 local redGroup = CreateGroupFrame(ImportantScroll, Color3.fromRGB(150, 30, 30))
@@ -474,8 +505,8 @@ end)
 r1.Size = UDim2.new(1, -6, 0, 35)
 r2.Size = UDim2.new(1, -6, 0, 35)
 
-AddButton(ImportantScroll, "Auto Save (Refund)", function() 
-    loadstring(game:HttpGet("https://raw.githubusercontent.com/xxqLgnd/Utilities/main/AutoRefund.lua", true))() 
+AddButton(ImportantScroll, "Auto Save (Refund)", function()
+    loadstring(game:HttpGet("https://raw.githubusercontent.com/xxqLgnd/Utilities/main/AutoRefund.lua", true))()
 end)
 
 local orangeGroup = CreateGroupFrame(ImportantScroll, Color3.fromRGB(160, 80, 20))
@@ -491,12 +522,12 @@ end)
 o1.Size = UDim2.new(1, -6, 0, 35)
 o2.Size = UDim2.new(1, -6, 0, 35)
 
-AddButton(ImportantScroll, "UtopiaSpy", function() 
-    loadstring(game:HttpGet("https://raw.githubusercontent.com/Klinac/scripts/main/utopia_spy.lua", true))() 
+AddButton(ImportantScroll, "UtopiaSpy", function()
+    loadstring(game:HttpGet("https://raw.githubusercontent.com/Klinac/scripts/main/utopia_spy.lua", true))()
 end)
 
-AddButton(ImportantScroll, "Keyboard", function() 
-    loadstring(game:HttpGet("https://raw.githubusercontent.com/Xxtan31/Ata/main/deltakeyboardcrack.txt"))() 
+AddButton(ImportantScroll, "Keyboard", function()
+    loadstring(game:HttpGet("https://raw.githubusercontent.com/Xxtan31/Ata/main/deltakeyboardcrack.txt"))()
 end)
 
 local purpleGroup = CreateGroupFrame(ImportantScroll, Color3.fromRGB(100, 30, 150))
@@ -505,8 +536,8 @@ local p1 = AddToggle(purpleGroup, "Safety Platform", "Platform", function(state)
 end)
 local p2 = AddTextBox(purpleGroup, "Platform Y offset (Тек: -3.76)", function(text)
     local n = tonumber(text)
-    if n then 
-        Settings.PlatformY = n 
+    if n then
+        Settings.PlatformY = n
         if Settings.Platform and platformPart then
             TogglePlatform(false)
             TogglePlatform(true)
