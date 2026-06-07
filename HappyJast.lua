@@ -54,6 +54,7 @@ local function FireTouchTransmitter(part)
     end
 end
 
+-- Поток для Random TP
 task.spawn(function()
     while true do
         if Settings.RandomTP and LocalPlayer.Character and LocalPlayer.Character:FindFirstChild("HumanoidRootPart") then
@@ -267,7 +268,7 @@ local function CreateGroupFrame(page, color)
     Group.Size = UDim2.new(1, -10, 0, 84)
     Group.BackgroundColor3 = color
     Group.BorderSizePixel = 0
-    Group.Active = false -- Исправление: рамка не блокирует клики
+    Group.Active = false
     Group.Parent = page
     
     local GCorn = Instance.new("UICorner")
@@ -329,7 +330,10 @@ local function AddToggle(page, text, varName, callback)
             Btn.Text = text .. ": OFF"
             Btn.TextColor3 = Color3.fromRGB(200, 200, 200)
         end
-        pcall(callback, Settings[varName])
+        -- Исправление: запускаем функции-коллбэки в изолированном потоке task.spawn
+        task.spawn(function()
+            pcall(callback, Settings[varName])
+        end)
     end)
     return Btn
 end
