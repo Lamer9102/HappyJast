@@ -115,6 +115,7 @@ end
 local ScreenGui = Instance.new("ScreenGui")
 ScreenGui.Name = "UddachoJust_CustomMenu"
 ScreenGui.ResetOnSpawn = false
+ScreenGui.DisplayOrder = 999999 -- Исправление: ставит твое меню выше слоев Infinite Yield
 ScreenGui.Parent = CoreGui
 
 local MainFrame = Instance.new("Frame")
@@ -330,7 +331,6 @@ local function AddToggle(page, text, varName, callback)
             Btn.Text = text .. ": OFF"
             Btn.TextColor3 = Color3.fromRGB(200, 200, 200)
         end
-        -- Исправление: запускаем функции-коллбэки в изолированном потоке task.spawn
         task.spawn(function()
             pcall(callback, Settings[varName])
         end)
