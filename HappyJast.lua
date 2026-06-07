@@ -1,26 +1,17 @@
 local Workspace = game:GetService("Workspace")
 local Players = game:GetService("Players")
 local LocalPlayer = Players.LocalPlayer
-local StarterGui = game:GetService("StarterGui")
+local CoreGui = game:GetService("CoreGui")
+local TweenService = game:GetService("TweenService")
 
 getgenv().Settings = {
-    Version = "1.3",
     Mouse = false,
     Hide = false,
     Range = 9e9,
     Sword = false,
 }
 
-local function SendNotification(title, text)
-    pcall(function()
-        StarterGui:SetCore("SendNotification", {
-            Title = title,
-            Text = text,
-            Duration = 5
-        })
-    end)
-end
-
+-- [ ФУНКЦИИ ЛОГИКИ ] --
 LocalPlayer:GetMouse().Button1Down:Connect(function()
     if Settings.Mouse and LocalPlayer:GetMouse().Hit then
         LocalPlayer.Character:PivotTo(CFrame.new(LocalPlayer:GetMouse().Hit.Position + Vector3.new(0, 3, 0)))
@@ -29,207 +20,278 @@ end)
 
 local function FireTouchTransmitter(part)
     local PartClass = part:FindFirstAncestorWhichIsA("Part")
-    if firetouchinterest then
+    if firetouchinterest and LocalPlayer.Character then
         local Character = LocalPlayer.Character:FindFirstChildOfClass("Part")
-  
         if Character and part and PartClass then
             firetouchinterest(PartClass, Character, 0)
             firetouchinterest(PartClass, Character, 1)
             PartClass:PivotTo(Character:GetPivot())
         end
-    else
+    elseif PartClass then
         LocalPlayer.Character:PivotTo(PartClass:GetPivot())
     end
 end
 
--- Корректный вызов библиотеки Kavo UI
-local Library = loadstring(game:HttpGet("https://raw.githubusercontent.com/xHeptc/Kavo-UI-Library/main/source.lua"))()
-local Window = Library.CreateLib("xxqLgnd Script v1.3", "DarkTheme")
+-- [ СОЗДАНИЕ СОБСТВЕННОГО ИНТЕРФЕЙСА ] --
+if CoreGui:FindFirstChild("xxqLgnd_CustomMenu") then
+    CoreGui["xxqLgnd_CustomMenu"]:Destroy()
+end
 
--- ВКЛАДКА: MAIN SCRIPTS
-local MainTab = Window:NewTab("Main Scripts")
-local MainSection = MainTab:NewSection("Main Scripts")
+local ScreenGui = Instance.new("ScreenGui")
+ScreenGui.Name = "xxqLgnd_CustomMenu"
+ScreenGui.ResetOnSpawn = false
+ScreenGui.Parent = CoreGui
 
-MainSection:NewButton("Infinite Yield", "Запустить Infinite Yield", function()
-    loadstring(game:HttpGet("https://raw.githubusercontent.com/EdgeIY/infiniteyield/master/source", true))()
-end)
+-- Главное окно
+local MainFrame = Instance.new("Frame")
+MainFrame.Size = UDim2.new(0, 500, 0, 320)
+MainFrame.Position = UDim2.new(0.5, -250, 0.5, -160)
+MainFrame.BackgroundColor3 = Color3.fromRGB(25, 25, 25)
+MainFrame.BorderSizePixel = 0
+MainFrame.Active = true
+MainFrame.Draggable = true
+MainFrame.Parent = ScreenGui
 
-MainSection:NewButton("Dark Dex", "Запустить Dark Dex", function()
-    loadstring(game:HttpGet("https://raw.githubusercontent.com/infyiff/backup/main/dex.lua", true))()
-end)
+local Corner = Instance.new("UICorner")
+Corner.CornerRadius = UDim.new(0, 8)
+Corner.Parent = MainFrame
 
-MainSection:NewButton("Buy Item Checker", "Запустить Buy Item Checker", function()
-    loadstring(game:HttpGet("https://raw.githubusercontent.com/xxqLgnd/Utilities/main/BuyItemChecker.lua", true))()
-end)
+-- Боковая панель (Вкладки)
+local SidePanel = Instance.new("Frame")
+SidePanel.Size = UDim2.new(0, 130, 1, 0)
+SidePanel.BackgroundColor3 = Color3.fromRGB(18, 18, 18)
+SidePanel.BorderSizePixel = 0
+SidePanel.Parent = MainFrame
 
-MainSection:NewButton("WyConnect", "Запустить WyConnect", function()
-    loadstring(game:HttpGet("https://pastefy.app/16kxxJlL/raw", true))()
-end)
+local SideCorner = Instance.new("UICorner")
+SideCorner.CornerRadius = UDim.new(0, 8)
+SideCorner.Parent = SidePanel
 
-MainSection:NewButton("Remote Spy", "Запустить SimpleSpy V3", function()
-    loadstring(game:HttpGet("https://raw.githubusercontent.com/infyiff/backup/main/SimpleSpyV3/main.lua", true))()
-end)
+-- Заголовок
+local Title = Instance.new("TextLabel")
+Title.Size = UDim2.new(1, -10, 0, 40)
+Title.Position = UDim2.new(0, 10, 0, 0)
+Title.Text = "xxqLgnd v1.3"
+Title.TextColor3 = Color3.fromRGB(255, 255, 255)
+Title.Font = Enum.Font.SourceSansBold
+Title.TextSize = 18
+Title.TextXAlignment = Enum.TextXAlignment.Left
+Title.BackgroundTransparency = 1
+Title.Parent = SidePanel
 
-MainSection:NewButton("Turtle Spy", "Запустить Turtle Spy", function()
-    loadstring(game:HttpGet("https://raw.githubusercontent.com/Turtle-Brand/Turtle-Spy/main/source.lua", true))()
-end)
+-- Кнопка закрытия
+local CloseBtn = Instance.new("TextButton")
+CloseBtn.Size = UDim2.new(0, 30, 0, 30)
+CloseBtn.Position = UDim2.new(1, -35, 0, 5)
+CloseBtn.Text = "X"
+CloseBtn.TextColor3 = Color3.fromRGB(200, 50, 50)
+CloseBtn.Font = Enum.Font.SourceSansBold
+CloseBtn.TextSize = 18
+CloseBtn.BackgroundTransparency = 1
+CloseBtn.Parent = MainFrame
+CloseBtn.MouseButton1Click:Connect(function() ScreenGui:Destroy() end)
 
-MainSection:NewButton("Remote Browser", "Запустить Remote Browser", function()
-    loadstring(game:HttpGet("https://raw.githubusercontent.com/Games1799/Scripts/refs/heads/main/RemoteBrowser", true))()
-end)
+-- Контейнер для списков кнопок
+local ContentContainer = Instance.new("Frame")
+ContentContainer.Size = UDim2.new(1, -140, 1, -50)
+ContentContainer.Position = UDim2.new(0, 135, 0, 45)
+ContentContainer.BackgroundTransparency = 1
+ContentContainer.Parent = MainFrame
 
-MainSection:NewButton("Dev Purchase's", "Запустить Dev Purchase's", function()
-    loadstring(game:HttpGet("https://raw.githubusercontent.com/ckw69/Wyborn/refs/heads/main/Dev%20Product%20Purchase", true))()
-end)
+local Pages = {}
+local currentTab = nil
 
-MainSection:NewButton("Adonis Bypass", "Запустить Adonis Bypass", function()
-    local adonisFound = false
-    for _, v in pairs(game:GetDescendants()) do
-        if v.Name == "__FUNCTION" then
-            adonisFound = true
-            loadstring(game:HttpGet('https://raw.githubusercontent.com/Pixeluted/adoniscries/main/Source.lua'))()
-            break
+local function CreatePage(name)
+    local Scroll = Instance.new("ScrollingFrame")
+    Scroll.Size = UDim2.new(1, 0, 1, 0)
+    Scroll.BackgroundTransparency = 1
+    Scroll.BorderSizePixel = 0
+    Scroll.ScrollBarThickness = 4
+    Scroll.Visible = false
+    Scroll.Parent = ContentContainer
+    
+    local List = Instance.new("UIListLayout")
+    List.Padding = UDim.new(0, 6)
+    List.SortOrder = Enum.SortOrder.LayoutOrder
+    List.Parent = Scroll
+    
+    Pages[name] = Scroll
+    return Scroll
+end
+
+local MainScroll = CreatePage("Main")
+local MovingScroll = CreatePage("Moving")
+local ToolsScroll = CreatePage("Tools")
+
+-- Переключение вкладок
+local function SelectTab(name)
+    for k, v in pairs(Pages) do v.Visible = (k == name) end
+end
+
+local tabCount = 0
+local function AddTabButton(name)
+    local Btn = Instance.new("TextButton")
+    Btn.Size = UDim2.new(1, -10, 0, 35)
+    Btn.Position = UDim2.new(0, 5, 0, 45 + (tabCount * 40))
+    Btn.Text = name
+    Btn.TextColor3 = Color3.fromRGB(200, 200, 200)
+    Btn.BackgroundColor3 = Color3.fromRGB(30, 30, 30)
+    Btn.Font = Enum.Font.SourceSans
+    Btn.TextSize = 15
+    Btn.BorderSizePixel = 0
+    Btn.Parent = SidePanel
+    
+    local BtnCorner = Instance.new("UICorner")
+    BtnCorner.CornerRadius = UDim.new(0, 4)
+    BtnCorner.Parent = Btn
+    
+    Btn.MouseButton1Click:Connect(function() SelectTab(name) end)
+    tabCount = tabCount + 1
+end
+
+AddTabButton("Main")
+AddTabButton("Moving")
+AddTabButton("Tools")
+SelectTab("Main")
+
+-- Конструкторы элементов
+local function AddButton(page, text, callback)
+    local Btn = Instance.new("TextButton")
+    Btn.Size = UDim2.new(1, -10, 0, 35)
+    Btn.Text = text
+    Btn.TextColor3 = Color3.fromRGB(255, 255, 255)
+    Btn.BackgroundColor3 = Color3.fromRGB(40, 40, 40)
+    Btn.Font = Enum.Font.SourceSansSemibold
+    Btn.TextSize = 16
+    Btn.BorderSizePixel = 0
+    Btn.Parent = page
+    
+    local BCorn = Instance.new("UICorner")
+    BCorn.CornerRadius = UDim.new(0, 5)
+    BCorn.Parent = Btn
+    
+    Btn.MouseButton1Click:Connect(function()
+        pcall(callback)
+    end)
+end
+
+local function AddToggle(page, text, varName, callback)
+    local Btn = Instance.new("TextButton")
+    Btn.Size = UDim2.new(1, -10, 0, 35)
+    Btn.Text = text .. ": OFF"
+    Btn.TextColor3 = Color3.fromRGB(200, 200, 200)
+    Btn.BackgroundColor3 = Color3.fromRGB(35, 35, 35)
+    Btn.Font = Enum.Font.SourceSansSemibold
+    Btn.TextSize = 16
+    Btn.BorderSizePixel = 0
+    Btn.Parent = page
+    
+    local BCorn = Instance.new("UICorner")
+    BCorn.CornerRadius = UDim.new(0, 5)
+    BCorn.Parent = Btn
+    
+    Btn.MouseButton1Click:Connect(function()
+        Settings[varName] = not Settings[varName]
+        if Settings[varName] then
+            Btn.Text = text .. ": ON"
+            Btn.TextColor3 = Color3.fromRGB(100, 255, 100)
+        else
+            Btn.Text = text .. ": OFF"
+            Btn.TextColor3 = Color3.fromRGB(200, 200, 200)
         end
+        pcall(callback, Settings[varName])
+    end)
+end
+
+local function AddTextBox(page, placeholder, callback)
+    local Box = Instance.new("TextBox")
+    Box.Size = UDim2.new(1, -10, 0, 35)
+    Box.PlaceholderText = placeholder
+    Box.Text = ""
+    Box.TextColor3 = Color3.fromRGB(255, 255, 255)
+    Box.PlaceholderColor3 = Color3.fromRGB(150, 150, 150)
+    Box.BackgroundColor3 = Color3.fromRGB(30, 30, 30)
+    Box.Font = Enum.Font.SourceSans
+    Box.TextSize = 15
+    Box.BorderSizePixel = 0
+    Box.Parent = page
+    
+    local BCorn = Instance.new("UICorner")
+    BCorn.CornerRadius = UDim.new(0, 5)
+    BCorn.Parent = Box
+    
+    Box.FocusLost:Connect(function(enterPressed)
+        if enterPressed then
+            pcall(callback, Box.Text)
+        end
+    end)
+end
+
+-- [ НАПОЛНЕНИЕ ВКЛАДОК ] --
+
+-- MAIN
+AddButton(MainScroll, "Infinite Yield", function() loadstring(game:HttpGet("https://raw.githubusercontent.com/EdgeIY/infiniteyield/master/source", true))() end)
+AddButton(MainScroll, "Dark Dex", function() loadstring(game:HttpGet("https://raw.githubusercontent.com/infyiff/backup/main/dex.lua", true))() end)
+AddButton(MainScroll, "Buy Item Checker", function() loadstring(game:HttpGet("https://raw.githubusercontent.com/xxqLgnd/Utilities/main/BuyItemChecker.lua", true))() end)
+AddButton(MainScroll, "WyConnect", function() loadstring(game:HttpGet("https://pastefy.app/16kxxJlL/raw", true))() end)
+AddButton(MainScroll, "Remote Spy", function() loadstring(game:HttpGet("https://raw.githubusercontent.com/infyiff/backup/main/SimpleSpyV3/main.lua", true))() end)
+AddButton(MainScroll, "Turtle Spy", function() loadstring(game:HttpGet("https://raw.githubusercontent.com/Turtle-Brand/Turtle-Spy/main/source.lua", true))() end)
+AddButton(MainScroll, "Remote Browser", function() loadstring(game:HttpGet("https://raw.githubusercontent.com/Games1799/Scripts/refs/heads/main/RemoteBrowser", true))() end)
+AddButton(MainScroll, "Dev Purchase's", function() loadstring(game:HttpGet("https://raw.githubusercontent.com/ckw69/Wyborn/refs/heads/main/Dev%20Product%20Purchase", true))() end)
+
+-- MOVING
+AddToggle(MovingScroll, "Mouse Teleport", "Mouse", function() end)
+AddButton(MovingScroll, "Copy Position", function()
+    local pos = LocalPlayer.Character.HumanoidRootPart:GetPivot()
+    setclipboard(string.format("%d, %d, %d", pos.X, pos.Y, pos.Z))
+end)
+AddButton(MovingScroll, "Copy Teleport", function()
+    local pos = LocalPlayer.Character.HumanoidRootPart:GetPivot()
+    setclipboard(string.format("game:GetService('Players').LocalPlayer.Character:PivotTo(CFrame.new(Vector3.new(%d, %d, %d)))", pos.X+.5, pos.Y+.5, pos.Z+.5))
+end)
+AddButton(MovingScroll, "Copy TweenService", function()
+    local pos = LocalPlayer.Character.HumanoidRootPart:GetPivot()
+    setclipboard(string.format("game:GetService('TweenService'):Create(game:GetService('Players').LocalPlayer.Character.HumanoidRootPart, TweenInfo.new(2), {CFrame = CFrame.new(%d, %d, %d)}):Play()", pos.X, pos.Y, pos.Z))
+end)
+
+-- TOOLS
+AddToggle(ToolsScroll, "Auto Hide Players", "Hide", function(state)
+    while Settings.Hide do
+        for _, v in pairs(Players:GetPlayers()) do
+            if v.Name ~= LocalPlayer.Name and v.Character then v.Character:Destroy() end
+        end
+        task.wait(.2)
     end
-    if not adonisFound then
-        SendNotification("Error...", "Adonis didn't found")
-    end
 end)
-
--- ВКЛАДКА: MOVING
-local MovingTab = Window:NewTab("Moving")
-local MovingSection = MovingTab:NewSection("Moving")
-
-MovingSection:NewToggle("Mouse Teleport", "Телепорт по клику мыши", function(state)
-    Settings.Mouse = state
+AddButton(ToolsScroll, "Fire All ProximityPrompt", function()
+    for _, v in ipairs(Workspace:GetDescendants()) do if v:IsA("ProximityPrompt") then fireproximityprompt(v) end end
 end)
-
-MovingSection:NewButton("Copy Position", "Скопировать позицию", function()
-    pcall(function()
-        local PlayerPosition = LocalPlayer.Character.HumanoidRootPart:GetPivot()
-        setclipboard(string.format("%d, %d, %d", PlayerPosition.X, PlayerPosition.Y, PlayerPosition.Z))
-    end)
+AddButton(ToolsScroll, "HoldDuration 0", function()
+    for _, v in pairs(Workspace:GetDescendants()) do if v:IsA("ProximityPrompt") then v.HoldDuration = 0 end end
 end)
-
-MovingSection:NewButton("Copy Teleport", "Скопировать код телепорта", function()
-    pcall(function()
-        local PlayerPosition = LocalPlayer.Character.HumanoidRootPart:GetPivot()
-        setclipboard(string.format("game:GetService('Players').LocalPlayer.Character:PivotTo(CFrame.new(Vector3.new(%d, %d, %d)))", PlayerPosition.X + .5, PlayerPosition.Y + .5, PlayerPosition.Z + .5))
-    end)
+AddButton(ToolsScroll, "Fire All ClickDetectors", function()
+    for _, v in ipairs(Workspace:GetDescendants()) do if v:IsA("ClickDetector") then fireclickdetector(v) end end
 end)
-
-MovingSection:NewButton("Copy TweenService", "Скопировать код TweenService", function()
-    pcall(function()
-        local PlayerPosition = LocalPlayer.Character.HumanoidRootPart:GetPivot()
-        setclipboard(string.format("game:GetService('TweenService'):Create(game:GetService('Players').LocalPlayer.Character.HumanoidRootPart, TweenInfo.new(2), {CFrame = CFrame.new(%d, %d, %d)}):Play()", PlayerPosition.X, PlayerPosition.Y, PlayerPosition.Z))
-    end)
+AddButton(ToolsScroll, "Fire All Firetouchinterests", function()
+    for _, v in ipairs(Workspace:GetDescendants()) do if v:IsA("TouchTransmitter") then FireTouchTransmitter(v) end end
 end)
-
-MovingSection:NewButton("Copy MoveTo", "Скопировать код MoveTo", function()
-    pcall(function()
-        local PlayerPosition = LocalPlayer.Character.HumanoidRootPart:GetPivot()
-        setclipboard(string.format([[
-            local Humanoid = game:GetService('Players').LocalPlayer.Character.Humanoid
-            Humanoid.WalkSpeed = 16
-            Humanoid.JumpPower = 19
-            Humanoid:ChangeState(Enum.HumanoidStateType.Jumping)
-            Humanoid:MoveTo(Vector3.new(%d, %d, %d))
-            ]], PlayerPosition.X, PlayerPosition.Y, PlayerPosition.Z
-        ))
-    end)
+AddTextBox(ToolsScroll, "Sword Killaura Range (жми Enter)", function(text)
+    local n = tonumber(text)
+    if n then Settings.Range = n end
 end)
-
-MovingSection:NewButton("Copy Lerp", "Скопировать код Lerp", function()
-    pcall(function()
-        local PlayerPosition = LocalPlayer.Character.HumanoidRootPart:GetPivot()
-        setclipboard(string.format([[
-            local HumanoidRootPart = game:GetService('Players').LocalPlayer.Character.HumanoidRootPart
-            for i = 0, 1, 0.05 do
-                HumanoidRootPart.CFrame = HumanoidRootPart.CFrame:Lerp(CFrame.new(%d, %d, %d), i); task.wait()
-            end]], PlayerPosition.X, PlayerPosition.Y, PlayerPosition.Z
-        ))
-    end)
-end)
-
--- ВКЛАДКА: TOOLS
-local ToolsTab = Window:NewTab("Tools")
-local ToolsSection = ToolsTab:NewSection("Tools")
-
-ToolsSection:NewToggle("Auto Hide Players", "Удалить других игроков", function(state)
-    task.spawn(function()
-        Settings.Hide = state
-        while true do
-            if not Settings.Hide then return end
-            for _, v in pairs(Players:GetPlayers()) do
-                if v.Name ~= LocalPlayer.Name and v.Character then
-                    v.Character:Destroy()
+AddToggle(ToolsScroll, "Sword Killaura", "Sword", function()
+    while Settings.Sword do
+        for _, v in pairs(Players:GetPlayers()) do
+            local Dist = LocalPlayer:DistanceFromCharacter(v.Character:GetPivot().Position)
+            if v.Character and v.Character.Name ~= LocalPlayer.Name and v.Character:FindFirstChild("HumanoidRootPart") and Dist <= Settings.Range then
+                local tool = LocalPlayer.Character and LocalPlayer.Character:FindFirstChildOfClass("Tool")
+                if tool and tool:FindFirstChild("Handle") then
+                    tool:Activate()
+                    firetouchinterest(tool.Handle, v.Character.HumanoidRootPart, 0)
+                    firetouchinterest(tool.Handle, v.Character.HumanoidRootPart, 1)
                 end
             end
-            task.wait(.1)
         end
-    end)
-end)
-
-ToolsSection:NewButton("Fire All ProximityPrompt", "Активировать все промоуты", function()
-    for _, v in ipairs(Workspace:GetDescendants()) do
-        if v:IsA("ProximityPrompt") then
-            fireproximityprompt(v)
-        end
+        task.wait(.3)
     end
-end)
-
-ToolsSection:NewButton("HoldDuration 0", "Убрать задержку промоутов", function()
-    for _, v in pairs(Workspace:GetDescendants()) do
-        if v:IsA("ProximityPrompt") then
-            v.HoldDuration = 0
-        end
-    end
-end)
-
-ToolsSection:NewButton("Fire All ClickDetectors", "Активировать клик-детекторы", function()
-    for _, v in ipairs(Workspace:GetDescendants()) do
-        if v:IsA("ClickDetector") then
-            fireclickdetector(v)
-        end
-    end
-end)
-
-ToolsSection:NewButton("Fire All Firetouchinterests", "Активировать TouchTransmitter", function()
-    for _, v in ipairs(Workspace:GetDescendants()) do
-        if v:IsA("TouchTransmitter") then
-            FireTouchTransmitter(v)
-        end
-    end
-end)
-
-ToolsSection:NewTextBox("Sword Killaura Range", "Дистанция киллауры", function(t)
-    local tt = tonumber(t)
-    if type(tt) == "number" then
-        Settings.Range = tt
-    end
-end)
-
-ToolsSection:NewToggle("Sword Killaura", "Включить Sword Killaura", function(state)
-    task.spawn(function()
-        Settings.Sword = state
-        while true do
-            if not Settings.Sword then return end
-            for _,v in pairs(Players:GetPlayers()) do
-                local Distance = LocalPlayer:DistanceFromCharacter(v.Character:GetPivot().Position)
-                if v.Character and v.Character.Name ~= LocalPlayer.Name and v.Character:FindFirstChild("Humanoid") and v.Character.Humanoid.Health > 0 and v.Character:FindFirstChild("HumanoidRootPart") and Distance <= Settings.Range then
-                    local tool = LocalPlayer.Character and LocalPlayer.Character:FindFirstChildOfClass("Tool")
-                    if tool and tool:FindFirstChild("Handle") then
-                        tool:Activate()
-                        for _,z in next, v.Character:GetChildren() do
-                            if z:IsA("BasePart") then
-                                firetouchinterest(tool.Handle, v, 0)
-                                firetouchinterest(tool.Handle, v, 1)
-                            end
-                        end
-                    end
-                end
-            end
-            task.wait(.4)
-        end
-    end)
 end)
