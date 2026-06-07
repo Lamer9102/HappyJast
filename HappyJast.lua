@@ -248,7 +248,7 @@ AddTabButton("Tools")
 AddTabButton("Most important")
 SelectTab("Main")
 
-local function AddButton(page, text, callback)
+local function AddButton(page, text, callback, strokeColor)
     local Btn = Instance.new("TextButton")
     Btn.Size = UDim2.new(1, -10, 0, 35)
     Btn.Text = text
@@ -262,11 +262,20 @@ local function AddButton(page, text, callback)
     local BCorn = Instance.new("UICorner")
     BCorn.CornerRadius = UDim.new(0, 5)
     BCorn.Parent = Btn
+
+    if strokeColor then
+        local Stroke = Instance.new("UIStroke")
+        Stroke.Color = strokeColor
+        Stroke.Thickness = 1.5
+        Stroke.ApplyStrokeMode = Enum.ApplyStrokeMode.Border
+        Stroke.Parent = Btn
+    end
     
     Btn.MouseButton1Click:Connect(function() pcall(callback) end)
+    return Btn
 end
 
-local function AddToggle(page, text, varName, callback)
+local function AddToggle(page, text, varName, callback, strokeColor)
     local Btn = Instance.new("TextButton")
     Btn.Size = UDim2.new(1, -10, 0, 35)
     Btn.Text = text .. ": OFF"
@@ -280,6 +289,14 @@ local function AddToggle(page, text, varName, callback)
     local BCorn = Instance.new("UICorner")
     BCorn.CornerRadius = UDim.new(0, 5)
     BCorn.Parent = Btn
+
+    if strokeColor then
+        local Stroke = Instance.new("UIStroke")
+        Stroke.Color = strokeColor
+        Stroke.Thickness = 1.5
+        Stroke.ApplyStrokeMode = Enum.ApplyStrokeMode.Border
+        Stroke.Parent = Btn
+    end
     
     Btn.MouseButton1Click:Connect(function()
         Settings[varName] = not Settings[varName]
@@ -292,9 +309,10 @@ local function AddToggle(page, text, varName, callback)
         end
         pcall(callback, Settings[varName])
     end)
+    return Btn
 end
 
-local function AddTextBox(page, placeholder, callback)
+local function AddTextBox(page, placeholder, callback, strokeColor)
     local Box = Instance.new("TextBox")
     Box.Size = UDim2.new(1, -10, 0, 35)
     Box.PlaceholderText = placeholder
@@ -310,10 +328,19 @@ local function AddTextBox(page, placeholder, callback)
     local BCorn = Instance.new("UICorner")
     BCorn.CornerRadius = UDim.new(0, 5)
     BCorn.Parent = Box
+
+    if strokeColor then
+        local Stroke = Instance.new("UIStroke")
+        Stroke.Color = strokeColor
+        Stroke.Thickness = 1.5
+        Stroke.ApplyStrokeMode = Enum.ApplyStrokeMode.Border
+        Stroke.Parent = Box
+    end
     
     Box.FocusLost:Connect(function(enterPressed)
         if enterPressed then pcall(callback, Box.Text) end
     end)
+    return Box
 end
 
 -- MAIN
@@ -362,10 +389,13 @@ end)
 AddButton(ToolsScroll, "Fire All Firetouchinterests", function()
     for _, v in ipairs(Workspace:GetDescendants()) do if v:IsA("TouchTransmitter") then FireTouchTransmitter(v) end end
 end)
+
+-- Обводка аквамариновая для Killaura в Tools
+local toolColor = Color3.fromRGB(0, 200, 200)
 AddTextBox(ToolsScroll, "Sword Killaura Range (жми Enter)", function(text)
     local n = tonumber(text)
     if n then Settings.Range = n end
-end)
+end, toolColor)
 AddToggle(ToolsScroll, "Sword Killaura", "Sword", function()
     while Settings.Sword do
         for _, v in pairs(Players:GetPlayers()) do
@@ -381,44 +411,50 @@ AddToggle(ToolsScroll, "Sword Killaura", "Sword", function()
         end
         task.wait(.3)
     end
-end)
+end, toolColor)
 
 -- MOST IMPORTANT
 AddButton(ImportantScroll, "Fly V3", function() 
     loadstring(game:HttpGet("https://raw.githubusercontent.com/XNEOFF/FlyGuiV3/main/FlyGuiV3.txt"))() 
 end)
 
-AddToggle(ImportantScroll, "Random TP", "RandomTP", function() end)
+-- Группа КРАСНАЯ (Random TP)
+local redColor = Color3.fromRGB(220, 50, 50)
+AddToggle(ImportantScroll, "Random TP", "RandomTP", function() end, redColor)
 AddTextBox(ImportantScroll, "TP Delay (Текущий: 0.5)", function(text)
     local n = tonumber(text)
     if n then Settings.TPDelay = n end
-end)
+end, redColor)
 
 AddButton(ImportantScroll, "Auto Save (Refund)", function() 
     loadstring(game:HttpGet("https://raw.githubusercontent.com/xxqLgnd/Utilities/main/AutoRefund.lua", true))() 
 end)
 
+-- Группа ОРАНЖЕВАЯ (Signal)
+local orangeColor = Color3.fromRGB(230, 120, 30)
 AddTextBox(ImportantScroll, "Введите ID для Signal", function(text)
     if text and text ~= "" then Settings.SignalID = text end
-end)
+end, orangeColor)
 AddButton(ImportantScroll, "Send Signal", function()
     pcall(function()
         MarketplaceService:SignalPromptPurchaseFinished(LocalPlayer, tonumber(Settings.SignalID), true)
         MarketplaceService:SignalPromptPurchaseFinished(LocalPlayer, tonumber(Settings.SignalID), false)
     end)
-end)
+end, orangeColor)
 
-AddButton(ImportantScroll, "Client Spy", function() 
-    loadstring(game:HttpGet("https://rawscripts.net/raw/Universal-Script-New-best-Rspy-69101"))() 
+AddButton(ImportantScroll, "UtopiaSpy", function() 
+    loadstring(game:HttpGet("https://raw.githubusercontent.com/Klinac/scripts/main/utopia_spy.lua", true))() 
 end)
 
 AddButton(ImportantScroll, "Keyboard", function() 
-    loadstring(game:HttpGet("https://rawscripts.net/raw/Universal-Script-New-best-Rspy-69101"))() 
+    loadstring(game:HttpGet("https://raw.githubusercontent.com/Xxtan31/Ata/main/deltakeyboardcrack.txt"))() 
 end)
 
+-- Группа ФИОЛЕТОВАЯ (Safety Platform)
+local purpleColor = Color3.fromRGB(150, 50, 220)
 AddToggle(ImportantScroll, "Safety Platform", "Platform", function(state)
     TogglePlatform(state)
-end)
+end, purpleColor)
 AddTextBox(ImportantScroll, "Platform Y offset (Тек: -3.76)", function(text)
     local n = tonumber(text)
     if n then 
@@ -428,4 +464,4 @@ AddTextBox(ImportantScroll, "Platform Y offset (Тек: -3.76)", function(text)
             TogglePlatform(true)
         end
     end
-end)
+end, purpleColor)
