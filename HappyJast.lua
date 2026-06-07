@@ -99,7 +99,6 @@ local function TogglePlatform(state)
     end
 end
 
--- GUI
 if CoreGui:FindFirstChild("UddachoJust_CustomMenu") then
     CoreGui["UddachoJust_CustomMenu"]:Destroy()
 end
@@ -209,7 +208,6 @@ ToggleBtn.MouseButton1Up:Connect(function()
     end
 end)
 
--- Страницы с защитой от скролла
 local Pages = {}
 local ScrollStates = {}
 
@@ -228,32 +226,13 @@ local function CreatePage(name)
     List.SortOrder = Enum.SortOrder.LayoutOrder
     List.Parent = Scroll
 
-    ScrollStates[Scroll] = { scrolling = false, mouseY = 0 }
+    ScrollStates[Scroll] = false
 
-    Scroll.InputBegan:Connect(function(input)
-        if input.UserInputType == Enum.UserInputType.MouseButton1
-        or input.UserInputType == Enum.UserInputType.Touch then
-            ScrollStates[Scroll].scrolling = false
-            ScrollStates[Scroll].mouseY = input.Position.Y
-        end
-    end)
-
-    Scroll.InputChanged:Connect(function(input)
-        if input.UserInputType == Enum.UserInputType.MouseMovement
-        or input.UserInputType == Enum.UserInputType.Touch then
-            if math.abs(input.Position.Y - ScrollStates[Scroll].mouseY) > 3 then
-                ScrollStates[Scroll].scrolling = true
-            end
-        end
-    end)
-
-    Scroll.InputEnded:Connect(function(input)
-        if input.UserInputType == Enum.UserInputType.MouseButton1
-        or input.UserInputType == Enum.UserInputType.Touch then
-            task.delay(0.4, function()
-                ScrollStates[Scroll].scrolling = false
-            end)
-        end
+    Scroll:GetPropertyChangedSignal("CanvasPosition"):Connect(function()
+        ScrollStates[Scroll] = true
+        task.delay(0.3, function()
+            ScrollStates[Scroll] = false
+        end)
     end)
 
     Pages[name] = Scroll
@@ -272,8 +251,7 @@ end
 local function IsScrolling(element)
     local scroll = FindParentScroll(element)
     if not scroll then return false end
-    local state = ScrollStates[scroll]
-    return state and state.scrolling == true
+    return ScrollStates[scroll] == true
 end
 
 local MainScroll      = CreatePage("Main")
