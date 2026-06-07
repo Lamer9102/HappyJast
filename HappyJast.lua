@@ -19,7 +19,8 @@ local CoreGui = game:GetService("CoreGui")
 local RunService = game:GetService("RunService")
 local MarketplaceService = game:GetService("MarketplaceService")
 
-getgenv().Settings = {
+-- Защищаем настройки: если IY их сносит, мы их жестко удерживаем локально
+local Settings = {
     Mouse = false,
     Hide = false,
     Range = 9e9,
@@ -30,6 +31,7 @@ getgenv().Settings = {
     Platform = false,
     PlatformY = -3.76,
 }
+getgenv().Settings = Settings
 
 local platformPart = nil
 local platformConnection = nil
@@ -115,7 +117,7 @@ end
 local ScreenGui = Instance.new("ScreenGui")
 ScreenGui.Name = "UddachoJust_CustomMenu"
 ScreenGui.ResetOnSpawn = false
-ScreenGui.DisplayOrder = 99999999 -- Максимальный приоритет поверх всех читов
+ScreenGui.DisplayOrder = 99999999
 ScreenGui.Parent = CoreGui
 
 local MainFrame = Instance.new("Frame")
@@ -243,6 +245,8 @@ local ToolsScroll = CreatePage("Tools")
 local ImportantScroll = CreatePage("Other")
 
 local function SelectTab(name)
+    -- Пересохраняем таблицу в getgenv принудительно при каждом клике по вкладкам
+    getgenv().Settings = Settings 
     for k, v in pairs(Pages) do v.Visible = (k == name) end
 end
 
@@ -314,7 +318,10 @@ local function AddButton(page, text, callback)
     BCorn.CornerRadius = UDim.new(0, 5)
     BCorn.Parent = Btn
     
-    Btn.MouseButton1Down:Connect(function() pcall(callback) end)
+    Btn.MouseButton1Down:Connect(function() 
+        getgenv().Settings = Settings -- Защитный бэкап сред перед вызовом функций
+        pcall(callback) 
+    end)
     return Btn
 end
 
@@ -328,15 +335,17 @@ local function AddToggle(page, text, varName, callback)
     Btn.TextSize = 14
     Btn.BorderSizePixel = 0
     Btn.Active = true
-    Btn.ZIndex = 15 -- Повышенный приоритет клика
+    Btn.ZIndex = 15
     Btn.Parent = page
     
     local BCorn = Instance.new("UICorner")
     BCorn.CornerRadius = UDim.new(0, 5)
     BCorn.Parent = Btn
     
-    -- Переведено на MouseButton1Down для игнорирования блокировок интерфейса со стороны IY
     Btn.MouseButton1Down:Connect(function()
+        -- Восстанавливаем окружение глобально принудительно на случай форс-мажора от IY
+        getgenv().Settings = Settings
+        
         Settings[varName] = not Settings[varName]
         if Settings[varName] then
             Btn.Text = text .. ": ON"
@@ -372,7 +381,10 @@ local function AddTextBox(page, placeholder, callback)
     BCorn.Parent = Box
     
     Box.FocusLost:Connect(function(enterPressed)
-        if enterPressed then pcall(callback, Box.Text) end
+        if enterPressed then 
+            getgenv().Settings = Settings
+            pcall(callback, Box.Text) 
+        end
     end)
     return Box
 end
