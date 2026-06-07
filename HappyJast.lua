@@ -42,44 +42,47 @@ local function FireTouchTransmitter(part)
     end
 end
 
-local Library = loadstring(game:HttpGet("https://raw.githubusercontent.com/bloodball/-back-ups-for-libs/main/wizard"))()
-local Window = Library:NewWindow(string.format("xxqLgnd Script %s", Settings.Version))
+-- Загрузка стабильного интерфейса Kavo UI
+local Library = loadstring(game:HttpGet("https://raw.githubusercontent.com/xHeptc/Kavo-UI-Library/main/source.lua"))()
+local Window = Library:CreateWindow(string.format("xxqLgnd Script %s", Settings.Version), "DarkTheme")
 
-local MainToggle = Window:NewSection("Main Scripts")
+-- ВКЛАДКА: MAIN SCRIPTS
+local MainTab = Window:NewTab("Main Scripts")
+local MainSection = MainTab:NewSection("Main Scripts")
 
-MainToggle:CreateButton("Infinite Yield", function()
-    loadstring(game:HttpGet("https://raw.githubusercontent.com/EdgeIY/infiniteyield/master/source",true))()
+MainSection:NewButton("Infinite Yield", "Запустить Infinite Yield", function()
+    loadstring(game:HttpGet("https://raw.githubusercontent.com/EdgeIY/infiniteyield/master/source", true))()
 end)
 
-MainToggle:CreateButton("Dark Dex", function()
-    loadstring(game:HttpGet("https://raw.githubusercontent.com/infyiff/backup/main/dex.lua",true))()
+MainSection:NewButton("Dark Dex", "Запустить Dark Dex", function()
+    loadstring(game:HttpGet("https://raw.githubusercontent.com/infyiff/backup/main/dex.lua", true))()
 end)
 
-MainToggle:CreateButton("Buy Item Checker", function()
-    loadstring(game:HttpGet("https://raw.githubusercontent.com/xxqLgnd/Utilities/main/BuyItemChecker.lua",true))()
+MainSection:NewButton("Buy Item Checker", "Запустить Buy Item Checker", function()
+    loadstring(game:HttpGet("https://raw.githubusercontent.com/xxqLgnd/Utilities/main/BuyItemChecker.lua", true))()
 end)
 
-MainToggle:CreateButton("WyConnect", function()
-    loadstring(game:HttpGet("https://pastefy.app/16kxxJlL/raw",true))()
+MainSection:NewButton("WyConnect", "Запустить WyConnect", function()
+    loadstring(game:HttpGet("https://pastefy.app/16kxxJlL/raw", true))()
 end)
 
-MainToggle:CreateButton("Remote Spy", function()
-    loadstring(game:HttpGet("https://raw.githubusercontent.com/infyiff/backup/main/SimpleSpyV3/main.lua",true))()
+MainSection:NewButton("Remote Spy", "Запустить SimpleSpy V3", function()
+    loadstring(game:HttpGet("https://raw.githubusercontent.com/infyiff/backup/main/SimpleSpyV3/main.lua", true))()
 end)
 
-MainToggle:CreateButton("Turtle Spy", function()
-    loadstring(game:HttpGet("https://raw.githubusercontent.com/Turtle-Brand/Turtle-Spy/main/source.lua",true))()
+MainSection:NewButton("Turtle Spy", "Запустить Turtle Spy", function()
+    loadstring(game:HttpGet("https://raw.githubusercontent.com/Turtle-Brand/Turtle-Spy/main/source.lua", true))()
 end)
 
-MainToggle:CreateButton("Remote Browser", function()
-    loadstring(game:HttpGet("https://raw.githubusercontent.com/Games1799/Scripts/refs/heads/main/RemoteBrowser",true))()
+MainSection:NewButton("Remote Browser", "Запустить Remote Browser", function()
+    loadstring(game:HttpGet("https://raw.githubusercontent.com/Games1799/Scripts/refs/heads/main/RemoteBrowser", true))()
 end)
 
-MainToggle:CreateButton("Dev Purchase's", function()
-    loadstring(game:HttpGet("https://raw.githubusercontent.com/ckw69/Wyborn/refs/heads/main/Dev%20Product%20Purchase",true))()
+MainSection:NewButton("Dev Purchase's", "Запустить Dev Purchase's", function()
+    loadstring(game:HttpGet("https://raw.githubusercontent.com/ckw69/Wyborn/refs/heads/main/Dev%20Product%20Purchase", true))()
 end)
 
-MainToggle:CreateButton("Adonis Bypass", function()
+MainSection:NewButton("Adonis Bypass", "Запустить Adonis Bypass", function()
     local adonisFound = false
     for _, v in pairs(game:GetDescendants()) do
         if v.Name == "__FUNCTION" then
@@ -93,36 +96,36 @@ MainToggle:CreateButton("Adonis Bypass", function()
     end
 end)
 
-local MovingToggle = Window:NewSection("Moving")
+-- ВКЛАДКА: MOVING
+local MovingTab = Window:NewTab("Moving")
+local MovingSection = MovingTab:NewSection("Moving")
 
-MovingToggle:CreateToggle("Mouse Teleport", function(state)
-    task.spawn(function()
-        Settings.Mouse = state
-    end)
+MovingSection:NewToggle("Mouse Teleport", "Телепорт по клику мыши", function(state)
+    Settings.Mouse = state
 end)
 
-MovingToggle:CreateButton("Copy Position", function()
+MovingSection:NewButton("Copy Position", "Скопировать позицию", function()
     pcall(function()
         local PlayerPosition = LocalPlayer.Character.HumanoidRootPart:GetPivot()
         setclipboard(string.format("%d, %d, %d", PlayerPosition.X, PlayerPosition.Y, PlayerPosition.Z))
     end)
 end)
 
-MovingToggle:CreateButton("Copy Teleport", function()
+MovingSection:NewButton("Copy Teleport", "Скопировать код телепорта", function()
     pcall(function()
         local PlayerPosition = LocalPlayer.Character.HumanoidRootPart:GetPivot()
         setclipboard(string.format("game:GetService('Players').LocalPlayer.Character:PivotTo(CFrame.new(Vector3.new(%d, %d, %d)))", PlayerPosition.X + .5, PlayerPosition.Y + .5, PlayerPosition.Z + .5))
     end)
 end)
 
-MovingToggle:CreateButton("Copy TweenService", function()
+MovingSection:NewButton("Copy TweenService", "Скопировать код TweenService", function()
     pcall(function()
         local PlayerPosition = LocalPlayer.Character.HumanoidRootPart:GetPivot()
         setclipboard(string.format("game:GetService('TweenService'):Create(game:GetService('Players').LocalPlayer.Character.HumanoidRootPart, TweenInfo.new(2), {CFrame = CFrame.new(%d, %d, %d)}):Play()", PlayerPosition.X, PlayerPosition.Y, PlayerPosition.Z))
     end)
 end)
 
-MovingToggle:CreateButton("Copy MoveTo", function()
+MovingSection:NewButton("Copy MoveTo", "Скопировать код MoveTo", function()
     pcall(function()
         local PlayerPosition = LocalPlayer.Character.HumanoidRootPart:GetPivot()
         setclipboard(string.format([[
@@ -136,7 +139,7 @@ MovingToggle:CreateButton("Copy MoveTo", function()
     end)
 end)
 
-MovingToggle:CreateButton("Copy Lerp", function()
+MovingSection:NewButton("Copy Lerp", "Скопировать код Lerp", function()
     pcall(function()
         local PlayerPosition = LocalPlayer.Character.HumanoidRootPart:GetPivot()
         setclipboard(string.format([[
@@ -148,14 +151,15 @@ MovingToggle:CreateButton("Copy Lerp", function()
     end)
 end)
 
-local ToolsToggle = Window:NewSection("Tools")
+-- ВКЛАДКА: TOOLS
+local ToolsTab = Window:NewTab("Tools")
+local ToolsSection = ToolsTab:NewSection("Tools")
 
-ToolsToggle:CreateToggle("Auto Hide Players", function(state)
+ToolsSection:NewToggle("Auto Hide Players", "Удалить других игроков", function(state)
     task.spawn(function()
         Settings.Hide = state
         while true do
             if not Settings.Hide then return end
-
             for _, v in pairs(Players:GetPlayers()) do
                 if v.Name ~= LocalPlayer.Name and v.Character then
                     v.Character:Destroy()
@@ -166,54 +170,46 @@ ToolsToggle:CreateToggle("Auto Hide Players", function(state)
     end)
 end)
 
-ToolsToggle:CreateButton("Fire All ProximityPrompt", function()
-    task.spawn(function()
-        for _, v in ipairs(Workspace:GetDescendants()) do
-            if v:IsA("ProximityPrompt") then
-                fireproximityprompt(v)
-            end
+ToolsSection:NewButton("Fire All ProximityPrompt", "Активировать все промоуты", function()
+    for _, v in ipairs(Workspace:GetDescendants()) do
+        if v:IsA("ProximityPrompt") then
+            fireproximityprompt(v)
         end
-    end)
+    end
 end)
 
-ToolsToggle:CreateButton("HoldDuration 0", function()
-    task.spawn(function()
-        for _, v in pairs(Workspace:GetDescendants()) do
-            if v:IsA("ProximityPrompt") then
-                v.HoldDuration = 0
-            end
+ToolsSection:NewButton("HoldDuration 0", "Убрать задержку промоутов", function()
+    for _, v in pairs(Workspace:GetDescendants()) do
+        if v:IsA("ProximityPrompt") then
+            v.HoldDuration = 0
         end
-    end)
+    end
 end)
 
-ToolsToggle:CreateButton("Fire All ClickDetectors", function()
-    task.spawn(function()
-        for _, v in ipairs(Workspace:GetDescendants()) do
-            if v:IsA("ClickDetector") then
-                fireclickdetector(v)
-            end
+ToolsSection:NewButton("Fire All ClickDetectors", "Активировать клик-детекторы", function()
+    for _, v in ipairs(Workspace:GetDescendants()) do
+        if v:IsA("ClickDetector") then
+            fireclickdetector(v)
         end
-    end)
+    end
 end)
 
-ToolsToggle:CreateButton("Fire All Firetouchinterests", function()
-    task.spawn(function()
-        for _, v in ipairs(Workspace:GetDescendants()) do
-            if v:IsA("TouchTransmitter") then
-                FireTouchTransmitter(v)
-            end
+ToolsSection:NewButton("Fire All Firetouchinterests", "Активировать TouchTransmitter", function()
+    for _, v in ipairs(Workspace:GetDescendants()) do
+        if v:IsA("TouchTransmitter") then
+            FireTouchTransmitter(v)
         end
-    end)
+    end
 end)
 
-ToolsToggle:CreateTextbox("Sword Killaura Range", function(t)
+ToolsSection:NewTextBox("Sword Killaura Range", "Дистанция киллауры", function(t)
     local tt = tonumber(t)
     if type(tt) == "number" then
         Settings.Range = tt
     end
 end)
 
-ToolsToggle:CreateToggle("Sword Killaura", function(state)
+ToolsSection:NewToggle("Sword Killaura", "Включить Sword Killaura", function(state)
     task.spawn(function()
         Settings.Sword = state
         while true do
@@ -237,4 +233,3 @@ ToolsToggle:CreateToggle("Sword Killaura", function(state)
         end
     end)
 end)
-
