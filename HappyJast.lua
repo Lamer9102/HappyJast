@@ -4,7 +4,7 @@ local LocalPlayer = Players.LocalPlayer
 local StarterGui = game:GetService("StarterGui")
 
 getgenv().Settings = {
-    Version = 1.3,
+    Version = "1.3",
     Mouse = false,
     Hide = false,
     Range = 9e9,
@@ -42,9 +42,9 @@ local function FireTouchTransmitter(part)
     end
 end
 
--- Исправленная загрузка Kavo UI
+-- Загрузка Kavo UI без использования форматирования строк
 local Library = loadstring(game:HttpGet("https://raw.githubusercontent.com/xHeptc/Kavo-UI-Library/main/source.lua"))()
-local Window = Library:CreateWindow("xxqLgnd Script", "DarkTheme")
+local Window = Library:CreateWindow("xxqLgnd Script v1.3", "DarkTheme")
 
 -- ВКЛАДКА: MAIN SCRIPTS
 local MainTab = Window:NewTab("Main Scripts")
