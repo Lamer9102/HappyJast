@@ -248,7 +248,29 @@ AddTabButton("Tools")
 AddTabButton("Most important")
 SelectTab("Main")
 
-local function AddButton(page, text, callback, strokeColor)
+-- Функция создания контейнера-группы
+local function CreateGroupFrame(page, color)
+    local Group = Instance.new("Frame")
+    Group.Size = UDim2.new(1, -10, 0, 84) -- Высота под 2 элемента + отступы
+    Group.BackgroundColor3 = color
+    Group.BorderSizePixel = 0
+    Group.Parent = page
+    
+    local GCorn = Instance.new("UICorner")
+    GCorn.CornerRadius = UDim.new(0, 6)
+    GCorn.Parent = Group
+    
+    local GList = Instance.new("UIListLayout")
+    GList.Padding = UDim.new(0, 4)
+    GList.SortOrder = Enum.SortOrder.LayoutOrder
+    GList.HorizontalAlignment = Enum.HorizontalAlignment.Center
+    GList.VerticalAlignment = Enum.VerticalAlignment.Center
+    GList.Parent = Group
+    
+    return Group
+end
+
+local function AddButton(page, text, callback)
     local Btn = Instance.new("TextButton")
     Btn.Size = UDim2.new(1, -10, 0, 35)
     Btn.Text = text
@@ -262,20 +284,12 @@ local function AddButton(page, text, callback, strokeColor)
     local BCorn = Instance.new("UICorner")
     BCorn.CornerRadius = UDim.new(0, 5)
     BCorn.Parent = Btn
-
-    if strokeColor then
-        local Stroke = Instance.new("UIStroke")
-        Stroke.Color = strokeColor
-        Stroke.Thickness = 1.5
-        Stroke.ApplyStrokeMode = Enum.ApplyStrokeMode.Border
-        Stroke.Parent = Btn
-    end
     
     Btn.MouseButton1Click:Connect(function() pcall(callback) end)
     return Btn
 end
 
-local function AddToggle(page, text, varName, callback, strokeColor)
+local function AddToggle(page, text, varName, callback)
     local Btn = Instance.new("TextButton")
     Btn.Size = UDim2.new(1, -10, 0, 35)
     Btn.Text = text .. ": OFF"
@@ -289,14 +303,6 @@ local function AddToggle(page, text, varName, callback, strokeColor)
     local BCorn = Instance.new("UICorner")
     BCorn.CornerRadius = UDim.new(0, 5)
     BCorn.Parent = Btn
-
-    if strokeColor then
-        local Stroke = Instance.new("UIStroke")
-        Stroke.Color = strokeColor
-        Stroke.Thickness = 1.5
-        Stroke.ApplyStrokeMode = Enum.ApplyStrokeMode.Border
-        Stroke.Parent = Btn
-    end
     
     Btn.MouseButton1Click:Connect(function()
         Settings[varName] = not Settings[varName]
@@ -312,7 +318,7 @@ local function AddToggle(page, text, varName, callback, strokeColor)
     return Btn
 end
 
-local function AddTextBox(page, placeholder, callback, strokeColor)
+local function AddTextBox(page, placeholder, callback)
     local Box = Instance.new("TextBox")
     Box.Size = UDim2.new(1, -10, 0, 35)
     Box.PlaceholderText = placeholder
@@ -328,14 +334,6 @@ local function AddTextBox(page, placeholder, callback, strokeColor)
     local BCorn = Instance.new("UICorner")
     BCorn.CornerRadius = UDim.new(0, 5)
     BCorn.Parent = Box
-
-    if strokeColor then
-        local Stroke = Instance.new("UIStroke")
-        Stroke.Color = strokeColor
-        Stroke.Thickness = 1.5
-        Stroke.ApplyStrokeMode = Enum.ApplyStrokeMode.Border
-        Stroke.Parent = Box
-    end
     
     Box.FocusLost:Connect(function(enterPressed)
         if enterPressed then pcall(callback, Box.Text) end
@@ -390,13 +388,9 @@ AddButton(ToolsScroll, "Fire All Firetouchinterests", function()
     for _, v in ipairs(Workspace:GetDescendants()) do if v:IsA("TouchTransmitter") then FireTouchTransmitter(v) end end
 end)
 
--- Обводка аквамариновая для Killaura в Tools
-local toolColor = Color3.fromRGB(0, 200, 200)
-AddTextBox(ToolsScroll, "Sword Killaura Range (жми Enter)", function(text)
-    local n = tonumber(text)
-    if n then Settings.Range = n end
-end, toolColor)
-AddToggle(ToolsScroll, "Sword Killaura", "Sword", function()
+-- Создаем Аквамариновую подложку для Killaura в Tools
+local toolGroup = CreateGroupFrame(ToolsScroll, Color3.fromRGB(0, 120, 120))
+local b1 = AddToggle(toolGroup, "Sword Killaura", "Sword", function()
     while Settings.Sword do
         for _, v in pairs(Players:GetPlayers()) do
             local Dist = LocalPlayer:DistanceFromCharacter(v.Character:GetPivot().Position)
@@ -411,36 +405,46 @@ AddToggle(ToolsScroll, "Sword Killaura", "Sword", function()
         end
         task.wait(.3)
     end
-end, toolColor)
+end)
+local b2 = AddTextBox(toolGroup, "Sword Killaura Range (жми Enter)", function(text)
+    local n = tonumber(text)
+    if n then Settings.Range = n end
+end)
+b1.Size = UDim2.new(1, -6, 0, 35)
+b2.Size = UDim2.new(1, -6, 0, 35)
 
 -- MOST IMPORTANT
 AddButton(ImportantScroll, "Fly V3", function() 
     loadstring(game:HttpGet("https://raw.githubusercontent.com/XNEOFF/FlyGuiV3/main/FlyGuiV3.txt"))() 
 end)
 
--- Группа КРАСНАЯ (Random TP)
-local redColor = Color3.fromRGB(220, 50, 50)
-AddToggle(ImportantScroll, "Random TP", "RandomTP", function() end, redColor)
-AddTextBox(ImportantScroll, "TP Delay (Текущий: 0.5)", function(text)
+-- КРАСНАЯ ГРУППА (Random TP)
+local redGroup = CreateGroupFrame(ImportantScroll, Color3.fromRGB(150, 30, 30))
+local r1 = AddToggle(redGroup, "Random TP", "RandomTP", function() end)
+local r2 = AddTextBox(redGroup, "TP Delay (Текущий: 0.5)", function(text)
     local n = tonumber(text)
     if n then Settings.TPDelay = n end
-end, redColor)
+end)
+r1.Size = UDim2.new(1, -6, 0, 35)
+r2.Size = UDim2.new(1, -6, 0, 35)
 
 AddButton(ImportantScroll, "Auto Save (Refund)", function() 
     loadstring(game:HttpGet("https://raw.githubusercontent.com/xxqLgnd/Utilities/main/AutoRefund.lua", true))() 
 end)
 
--- Группа ОРАНЖЕВАЯ (Signal)
-local orangeColor = Color3.fromRGB(230, 120, 30)
-AddTextBox(ImportantScroll, "Введите ID для Signal", function(text)
+-- ОРАНЖЕВАЯ ГРУППА (Signal)
+local orangeGroup = CreateGroupFrame(ImportantScroll, Color3.fromRGB(160, 80, 20))
+local o1 = AddTextBox(orangeGroup, "Введите ID для Signal", function(text)
     if text and text ~= "" then Settings.SignalID = text end
-end, orangeColor)
-AddButton(ImportantScroll, "Send Signal", function()
+end)
+local o2 = AddButton(orangeGroup, "Send Signal", function()
     pcall(function()
         MarketplaceService:SignalPromptPurchaseFinished(LocalPlayer, tonumber(Settings.SignalID), true)
         MarketplaceService:SignalPromptPurchaseFinished(LocalPlayer, tonumber(Settings.SignalID), false)
     end)
-end, orangeColor)
+end)
+o1.Size = UDim2.new(1, -6, 0, 35)
+o2.Size = UDim2.new(1, -6, 0, 35)
 
 AddButton(ImportantScroll, "UtopiaSpy", function() 
     loadstring(game:HttpGet("https://raw.githubusercontent.com/Klinac/scripts/main/utopia_spy.lua", true))() 
@@ -450,12 +454,12 @@ AddButton(ImportantScroll, "Keyboard", function()
     loadstring(game:HttpGet("https://raw.githubusercontent.com/Xxtan31/Ata/main/deltakeyboardcrack.txt"))() 
 end)
 
--- Группа ФИОЛЕТОВАЯ (Safety Platform)
-local purpleColor = Color3.fromRGB(150, 50, 220)
-AddToggle(ImportantScroll, "Safety Platform", "Platform", function(state)
+-- ФИОЛЕТОВАЯ ГРУППА (Safety Platform)
+local purpleGroup = CreateGroupFrame(ImportantScroll, Color3.fromRGB(100, 30, 150))
+local p1 = AddToggle(purpleGroup, "Safety Platform", "Platform", function(state)
     TogglePlatform(state)
-end, purpleColor)
-AddTextBox(ImportantScroll, "Platform Y offset (Тек: -3.76)", function(text)
+end)
+local p2 = AddTextBox(purpleGroup, "Platform Y offset (Тек: -3.76)", function(text)
     local n = tonumber(text)
     if n then 
         Settings.PlatformY = n 
@@ -464,4 +468,6 @@ AddTextBox(ImportantScroll, "Platform Y offset (Тек: -3.76)", function(text)
             TogglePlatform(true)
         end
     end
-end, purpleColor)
+end)
+p1.Size = UDim2.new(1, -6, 0, 35)
+p2.Size = UDim2.new(1, -6, 0, 35)
