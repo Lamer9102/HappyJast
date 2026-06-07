@@ -42,9 +42,9 @@ local function FireTouchTransmitter(part)
     end
 end
 
--- Загрузка Kavo UI без использования форматирования строк
+-- Корректный вызов библиотеки Kavo UI
 local Library = loadstring(game:HttpGet("https://raw.githubusercontent.com/xHeptc/Kavo-UI-Library/main/source.lua"))()
-local Window = Library:CreateWindow("xxqLgnd Script v1.3", "DarkTheme")
+local Window = Library.CreateLib("xxqLgnd Script v1.3", "DarkTheme")
 
 -- ВКЛАДКА: MAIN SCRIPTS
 local MainTab = Window:NewTab("Main Scripts")
